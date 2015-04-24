@@ -1,0 +1,216 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import math
+import pprint
+pp = pprint.pprint
+
+import pretty_capacity
+
+class Bin:
+    def __init__(self, size):
+        self.size = size
+        self.items = []
+        self.sum = 0
+
+    def fits(self, item):
+        return self.sum + item.size <= self.size
+
+    def append(self, item):
+        self.items.append(item)
+        self.sum += item.size
+
+    def __str__(self):
+        return 'Bin(size=%d, sum=%d, items=%s)' % (self.size, self.sum, str(self.items))
+
+
+class Item:
+    def __init__(self, desc, size):
+        self.desc = desc
+        self.size = size
+
+    def __repr__(self):
+        return "{}".format(self.size)
+
+    def __lt__(self, other):
+        return self.size < other.size
+
+
+class Packing:
+    class Score:
+        def __init__(self, packing):
+            self.unpacked = len(packing.unpacked)
+            self.bins = len(packing.bins)
+            self.orig_bins = len(packing.sizes)
+            self.rest_size = packing.rest_size
+
+        def __lt__(self, other):
+            # self < other === other is better
+            if other.unpacked < self.unpacked:
+                return True
+            elif other.unpacked > self.unpacked:
+                return False
+            else:
+                return other.bins < self.bins
+
+        @property
+        def perfect(self):
+            return self.unpacked == 0 and (self.bins == self.orig_bins or
+                                           self.waste < self.rest_size)
+
+        def __repr__(self):
+            return "<perfect: {}, #(unpacked): {}, #(bins): {}, #(orig_bins): {}, rest_size: {}>".format(
+                "yes" if self.perfect else "no", self.unpacked, self.bins, self.orig_bins, self.rest_size)
+
+    def __init__(self, sizes, rest_size, items):
+        bins = [Bin(size) for size in sizes]
+        unpacked = []
+
+        for item in items:
+            packed = False
+            for bin in bins:
+                if bin.fits(item):
+                    bin.append(item)
+                    packed = True
+                    break
+
+            if not packed:
+                if item.size <= rest_size:
+                    bin = Bin(rest_size)
+                    bin.append(item)
+                    bins.append(bin)
+                else:
+                    unpacked.append(item)
+
+        self.bins = bins
+        self.unpacked = unpacked
+        self.sizes = sizes
+        self.rest_size = rest_size
+
+    @property
+    def waste(self):
+        return sum(bin.size - bin.sum for bin in self.bins)
+
+    @property
+    def score(self):
+        return Packing.Score(self)
+
+    def report(self):
+        print("packing score: {}".format(self.score))
+
+        for bin in self.bins:
+            print("bin size {} (used {}, free {})".format(bin.size, bin.sum, bin.size - bin.sum))
+            print("     {}\n".format(bin.items))
+
+        print("unpacked:\n     {}".format(self.unpacked))
+
+
+class SortedPacking(Packing):
+    def __init__(self, sizes, rest_size, items):
+        super().__init__(sorted(sizes, reverse=True), rest_size, sorted(items, reverse=True))
+
+
+class RandomPacking(Packing):
+    def __init__(self, sizes, rest_size, items):
+        rsizes = sizes[:]
+        random.shuffle(rsizes)
+        ritems = items[:]
+        random.shuffle(ritems)
+
+        super().__init__(rsizes, rest_size, ritems)
+
+
+def algo(sizes, rest_size, items):
+    topp = SortedPacking(sizes, rest_size, items)
+    topscore = topp.score
+
+    if len(topp.unpacked) == len(items):
+        return None  # you fuckerrrrr
+
+    for ii in range(0, 1000): # xxx time?
+        if topscore.perfect:
+            break
+
+        p = RandomPacking(sizes, rest_size, items)
+        score = p.score
+        print("iter {}: {}".format(ii, p.score))
+        if topscore < score:
+            topscore, topp = score, p
+
+    return topp
+
+
+def main():
+    hand_cases = [
+            '-0 B',
+            '1 B', # +1
+            '9 B',
+            '11 B',
+            '99 B',
+            '100 B',
+            '999 B', # 10**i -1
+            '1000 B',# 10**i
+            '1001 B',# 10**i  +1
+            '10 B',
+            '1023 B',
+            '1024 B',
+            '1025 B',
+            '10230 B',
+            '11366 B',
+            '102391 B',
+            '102399 B',
+            '102400 B',
+            '102401 B',
+            '999 KiB',
+            '1000 KiB',
+            '1001 KiB',
+            '1023 KiB',
+            '1048575 B',
+            '1024 KiB',
+            '1025 KiB',
+            '1099511000000 B',
+            '1099511627775 B',
+            '1 TiB',
+            str(23*1024+456) + ' B',
+            str(1024**7) + ' B',
+    ]
+    cases_bytes = [ 10**dec *
+                    1024**exp +
+                    fudge
+                    for exp in range(0, 9)
+                    for dec in range(0, 4)
+                    for fudge in (-1, 0, 1)
+    ]
+    cases = ["{:d} B".format(b)
+             for b in cases_bytes
+             if b < 1000*1024**8]
+    for h in hand_cases:
+        if h not in cases:
+            cases.append(h)
+
+    for quantity_s in cases:
+        #quantity = ureg(quantity_s)
+        #print("{:~}\t{:~}\t{}".format(quantity.to('byte'), quantity, to_human(quantity)))
+        expr = "assert to_human(ureg({!r})) == {!r}".format(
+                               quantity_s,
+                               pretty_capacity.to_human(pretty_capacity.ureg(quantity_s)))
+
+        print(expr)
+        #assert to_human(ureg(quantity_s)) == quantity_s
+
+    return
+
+    sizes = [v, v, v] # or []
+    rest_size = v
+    items = [Item('desc', size * ureg.byte) for size in [100, 651, 10,9,8,7,6,5,4,3,2,1, 700]]
+
+
+    #    preferred_unit = mode(input units)
+
+    p = algo(sizes, rest_size, items)
+    p.report()
+
+
+if __name__ == '__main__':
+    main()
