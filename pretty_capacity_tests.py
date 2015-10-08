@@ -4,54 +4,55 @@ import sys
 from nose.tools import *
 import pretty_capacity as pc
 
-def undefine_ureg():
-    pc._saved_ureg = pc.ureg
-    pc.ureg = None
-def redefine_ureg():
-    pc.ureg = pc._saved_ureg
-    pc._saved_ureg = None
-
 def pp(*args, **kwargs):
     return pc.formatter(**kwargs)(*args)
 
-@with_setup(undefine_ureg, redefine_ureg)
-def test_no_ureg():
-    assert pc.ureg is None
-    assert pp(0) == '0 B'
+if pc.ureg:
+    def undefine_ureg():
+        pc._saved_ureg = pc.ureg
+        pc.ureg = None
+    def redefine_ureg():
+        pc.ureg = pc._saved_ureg
+        pc._saved_ureg = None
 
-def test_has_ureg():
-    assert pc.ureg
+    @with_setup(undefine_ureg, redefine_ureg)
+    def test_no_ureg():
+        assert pc.ureg is None
+        assert pp(0) == '0 B'
 
-@raises(pc.DifferentRegistryError)
-def test_different_registry():
-    other_ureg = pc.pint.UnitRegistry()
-    pp(other_ureg('10 bytes'))
+    def test_has_ureg():
+        assert pc.ureg
 
-def test_hands():
-    assert pp(0) == '0 B'
-    assert pp(-0) == '0 B'
-    assert pp('-0 B') == '0 B'
+    @raises(pc.DifferentRegistryError)
+    def test_different_registry():
+        other_ureg = pc.pint.UnitRegistry()
+        pp(other_ureg('10 bytes'))
 
-    data = [
-        ('10230 B', '9.990 KiB'),
-        ('11366 B', '11.09 KiB'),
-        ('102391 B', '99.99 KiB'),
-        ('999 KiB', '999 KiB'),
-        ('1000 KiB', '1000 KiB'),
-        ('1001 KiB', '0.977 MiB'),
-        ('1023 KiB', '0.999 MiB'),
-        ('1024 KiB', '1 MiB'),
-        ('1025 KiB', '1.000 MiB'),
-        ('1099511000000 B', '0.999 TiB'),
-        ('1 TiB', '1 TiB'),
-        ('24008 B', '23.44 KiB'),
-    ]
-    def check_direct(b, result):
-        assert pp(b) == result
-        assert pp(pc.ureg(b)) == result
+    def test_hands():
+        assert pp(0) == '0 B'
+        assert pp(-0) == '0 B'
+        assert pp('-0 B') == '0 B'
 
-    for b, result in data:
-        yield check_direct, b, result
+        data = [
+            ('10230 B', '9.990 KiB'),
+            ('11366 B', '11.09 KiB'),
+            ('102391 B', '99.99 KiB'),
+            ('999 KiB', '999 KiB'),
+            ('1000 KiB', '1000 KiB'),
+            ('1001 KiB', '0.977 MiB'),
+            ('1023 KiB', '0.999 MiB'),
+            ('1024 KiB', '1 MiB'),
+            ('1025 KiB', '1.000 MiB'),
+            ('1099511000000 B', '0.999 TiB'),
+            ('1 TiB', '1 TiB'),
+            ('24008 B', '23.44 KiB'),
+        ]
+        def check_direct(b, result):
+            assert pp(b) == result
+            assert pp(pc.ureg(b)) == result
+
+        for b, result in data:
+            yield check_direct, b, result
 
 @raises(ValueError)
 def test_format_mt_mutex():
@@ -130,12 +131,12 @@ def test_fudges():
         """parse `result` back through pint, check that it's <= to the original,
         within truncation error
         """
-
-        pint_bytes = pc.ureg(result).to('bytes').magnitude
-        if isinstance(pint_bytes, float):
-            assert 0.999 <= (pint_bytes / b) <= 1, "ureg(`result`) should be <= `b`, but not by too much"
-        else:
-            assert pint_bytes == b
+        if pc.ureg:
+            pint_bytes = pc.ureg(result).to('bytes').magnitude
+            if isinstance(pint_bytes, float):
+                assert 0.999 <= (pint_bytes / b) <= 1, "ureg(`result`) should be <= `b`, but not by too much"
+            else:
+                assert pint_bytes == b
 
     for b, results in fudge_cases:
         for result, kwargs in zip(results, kwargses):
