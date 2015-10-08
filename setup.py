@@ -11,6 +11,9 @@ setup(
     name = 'bytesize',
     version = '0',
     packages = find_packages(),
+    extras_require = {
+        'pint': 'pint>=0.6'
+    },
 
     # metadata for upload to PyPI
     author = "Chris Piro",
