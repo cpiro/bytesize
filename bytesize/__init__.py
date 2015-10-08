@@ -1,21 +1,6 @@
-#!/usr/bin/env python3
-
 # xxx cli
 
-# (hurry.filesize) A simple Python library for human readable file sizes (or anything sized in bytes).
-# (hfilesize) Human Readable File Sizes
-
-# module docstring, readme.md, readthedocs (https://github.com/mtik00/obfuscator)
-# travis, coverall
-
-# keywords: byte size file data units parser formatter
-
-# __version__ = "0.2a"
-# __date__ = "2012-05-06"
-# __author__ = "Steven D'Aprano"
-# __author_email__ = "steve+python@pearwood.info"
-#
-# __all__ = ['format', 'ByteFormatter']
+__all__ = ['formatter', 'Quantity']
 
 import os
 import sys
@@ -59,12 +44,12 @@ units_table = {
 def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     def inner(value):
         # xxx width vs digits name, then **kwargs this
-        kind, number, units = ByteQuantity(value).humanize(base=base, cutoff=cutoff, width=digits, abbrev=abbrev)
-        result = ByteQuantity.string_format(kind, number, units)
+        kind, number, units = Quantity(value).humanize(base=base, cutoff=cutoff, width=digits, abbrev=abbrev)
+        result = Quantity.string_format(kind, number, units)
         return result
     return inner
 
-class ByteQuantity:
+class Quantity:
     def __init__(self, value):
         """Tries to interpret `value` as a number of bytes.
         Returns (int) number of bytes"""
@@ -93,10 +78,10 @@ class ByteQuantity:
         return '<BytesQuantity {}>'.format(self.value)
 
     def __format__(self, spec):
-        fill, align, string_width, precision, type_ = ByteQuantity.parse_spec(spec)
-        base, cutoff, digits_width, units_width = ByteQuantity.format_options(fill, align, string_width, precision, type_)
+        fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
+        base, cutoff, digits_width, units_width = Quantity.format_options(fill, align, string_width, precision, type_)
         kind, number, units = self.humanize(base=base, cutoff=cutoff, width=digits_width)
-        result = ByteQuantity.string_format(kind, number, units, fill, align, string_width, units_width)
+        result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
         return result
 
     def humanize(self, base=1024, cutoff=1000, width=5, abbrev=True):
@@ -121,7 +106,7 @@ class ByteQuantity:
             return 'exact', sig, units(sig != 1)  # "{:d} {}".format(sig, units)
         else:
             whole = "{:d}.".format(sig)
-            digits = ByteQuantity.decimal_part(width - len(whole), rem, base, exp)
+            digits = Quantity.decimal_part(width - len(whole), rem, base, exp)
             number = whole + digits
             frac_quot = rem / base**exp
             assert len(number) == width
@@ -342,14 +327,7 @@ class ByteQuantity:
                 ('.' + str(precision) if precision is not None else '') +
                 type_)
 
-
-def main():
-    import pretty_capacity_tests
-    pretty_capacity_tests.make_fudges()
-
-
 ### GLOBAL SCOPE
-
 
 try:
     import pint
@@ -363,6 +341,3 @@ try:
 
 except ImportError:
     ureg = None
-
-if __name__ == '__main__':
-    main()

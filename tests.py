@@ -1,31 +1,33 @@
 #!/usr/bin/env python3
 
+# ./tests.py make_fudges
+
 import sys
 from nose.tools import *
-import pretty_capacity as pc
+import bytesize as bs
 
 def pp(*args, **kwargs):
-    return pc.formatter(**kwargs)(*args)
+    return bs.formatter(**kwargs)(*args)
 
-if pc.ureg:
+if bs.ureg:
     def undefine_ureg():
-        pc._saved_ureg = pc.ureg
-        pc.ureg = None
+        bs._saved_ureg = bs.ureg
+        bs.ureg = None
     def redefine_ureg():
-        pc.ureg = pc._saved_ureg
-        pc._saved_ureg = None
+        bs.ureg = bs._saved_ureg
+        bs._saved_ureg = None
 
     @with_setup(undefine_ureg, redefine_ureg)
     def test_no_ureg():
-        assert pc.ureg is None
+        assert bs.ureg is None
         assert pp(0) == '0 B'
 
     def test_has_ureg():
-        assert pc.ureg
+        assert bs.ureg
 
-    @raises(pc.DifferentRegistryError)
+    @raises(bs.DifferentRegistryError)
     def test_different_registry():
-        other_ureg = pc.pint.UnitRegistry()
+        other_ureg = bs.pint.UnitRegistry()
         pp(other_ureg('10 bytes'))
 
     def test_hands():
@@ -49,22 +51,22 @@ if pc.ureg:
         ]
         def check_direct(b, result):
             assert pp(b) == result
-            assert pp(pc.ureg(b)) == result
+            assert pp(bs.ureg(b)) == result
 
         for b, result in data:
             yield check_direct, b, result
 
 @raises(ValueError)
 def test_format_mt_mutex():
-    '{:mt}'.format(pc.ByteQuantity(10000))
+    '{:mt}'.format(bs.ByteQuantity(10000))
 
 def test_parse_spec():
     def reversible(spec_tuple):
-        spec = pc.ByteQuantity.unparse_spec(*spec_tuple)
-        assert spec_tuple == pc.ByteQuantity.parse_spec(spec)
+        spec = bs.ByteQuantity.unparse_spec(*spec_tuple)
+        assert spec_tuple == bs.ByteQuantity.parse_spec(spec)
 
     def basic(spec_tuple, values):
-        spec = pc.ByteQuantity.unparse_spec(*spec_tuple)
+        spec = bs.ByteQuantity.unparse_spec(*spec_tuple)
         fill, align, width, precision, type_ = spec_tuple
         format_str = '{:' + spec + '}'
 
@@ -82,7 +84,7 @@ def test_parse_spec():
 
             print("{:13} {!r}".format('', byt))
 
-    values = [pc.ByteQuantity(k) for k in (1, 999, 1023, 102526)]
+    values = [bs.ByteQuantity(k) for k in (1, 999, 1023, 102526)]
 
     for spec_tuple in parse_spec_cases:
         yield reversible, spec_tuple
@@ -104,7 +106,7 @@ def test_fudges():
 
     def check_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
-        sig, exp, rem = pc.ByteQuantity(b).factor(base=base, cutoff=cutoff)
+        sig, exp, rem = bs.ByteQuantity(b).factor(base=base, cutoff=cutoff)
         assert b == sig * base**exp + rem
         assert sig < cutoff or (sig == cutoff and base > cutoff)
 
@@ -112,7 +114,7 @@ def test_fudges():
         width = 5
         whole = "{:d}.".format(sig)
         places = width - len(whole)
-        digits = pc.ByteQuantity.decimal_part(places, rem, base, exp)
+        digits = bs.ByteQuantity.decimal_part(places, rem, base, exp)
         assert isinstance(digits, str)  # sure
 
         # should be the same as the floating division
@@ -131,8 +133,8 @@ def test_fudges():
         """parse `result` back through pint, check that it's <= to the original,
         within truncation error
         """
-        if pc.ureg:
-            pint_bytes = pc.ureg(result).to('bytes').magnitude
+        if bs.ureg:
+            pint_bytes = bs.ureg(result).to('bytes').magnitude
             if isinstance(pint_bytes, float):
                 assert 0.999 <= (pint_bytes / b) <= 1, "ureg(`result`) should be <= `b`, but not by too much"
             else:
@@ -140,7 +142,7 @@ def test_fudges():
 
     for b, results in fudge_cases:
         for result, kwargs in zip(results, kwargses):
-            fmt = pc.formatter(**kwargs)
+            fmt = bs.formatter(**kwargs)
             if result is not None:
                 yield check_formatter, b, result, fmt
                 yield check_guts, b, result, kwargs
@@ -149,11 +151,11 @@ def test_fudges():
 def make_fudges():
     import pprint
     def safe_formatter(*args, **kwargs):
-        fmt = pc.formatter(*args, **kwargs)
+        fmt = bs.formatter(*args, **kwargs)
         def inner(value):
             try:
                 return fmt(value)
-            except pc.UnitNoExistError:
+            except bs.UnitNoExistError:
                 return None
         return inner
 
