@@ -8,7 +8,7 @@
 # module docstring, readme.md, readthedocs (https://github.com/mtik00/obfuscator)
 # travis, coverall
 
-# keywords: byte size file
+# keywords: byte size file data units parser formatter
 
 # __version__ = "0.2a"
 # __date__ = "2012-05-06"
