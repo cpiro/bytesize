@@ -49,6 +49,12 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
         return result
     return inner
 
+def short_formatter(try_metric=True, tolerance=0.01):
+    def inner(value):
+        kind, number, units = Quantity(value).short_humanize(try_metric=try_metric, tolerance=tolerance)
+        return str(number) + units
+    return inner
+
 class Quantity:
     def __init__(self, value):
         """Tries to interpret `value` as a number of bytes.
@@ -75,7 +81,7 @@ class Quantity:
         return self.__format__('')
 
     def __repr__(self):
-        return '<BytesQuantity {}>'.format(self.value)
+        return '<Quantity {}>'.format(self.value)
 
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
@@ -112,6 +118,41 @@ class Quantity:
             assert len(number) == width
 
             return 'trunc', number, units(True)  # "{} {}".format(number, units)
+
+    def short_humanize(self, *, try_metric, tolerance):
+        cutoff = 1000
+
+        # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
+        # (like HDD capacities), round down and call it 'exact'. otherwise use
+        # base 1024
+        base = None
+        if try_metric:
+            sig10, exp10, rem10 = self.factor(base=1000, cutoff=cutoff)
+            if rem10 < tolerance * (1000**exp10):
+                base = 1000
+                sig, exp, rem = sig10, exp10, 0
+
+        if base is None:
+            base = 1024
+            sig, exp, rem = self.factor(base=1024, cutoff=cutoff)
+
+        def units(plural):
+            try:
+                return units_table[base][exp][0]
+            except IndexError:
+                pass
+            raise UnitNoExistError()
+
+        if rem == 0:
+            return 'exact', sig, units(True)
+        elif sig < 100:
+            whole = "{}.".format(sig)
+            digits = Quantity.decimal_part(4-len(whole), rem, base, exp)
+            number = whole + digits
+            frac_quot = rem / base**exp
+            return 'trunc', number, units(True)
+        else:
+            return 'trunc', sig, units(True)
 
     def factor(self, base, cutoff):
         """Solves for (sig, exp, rem) where:
