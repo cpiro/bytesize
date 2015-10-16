@@ -1,3 +1,13 @@
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+from __future__ import absolute_import
+from builtins import super
+from builtins import int
+from builtins import str
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 # xxx cli
 
 __all__ = ['formatter', 'Quantity']
@@ -55,7 +65,7 @@ def short_formatter(try_metric=True, tolerance=0.01):
         return str(number) + units
     return inner
 
-class Quantity:
+class Quantity(object):
     def __init__(self, value):
         """Tries to interpret `value` as a number of bytes.
         Returns (int) number of bytes"""
@@ -119,7 +129,9 @@ class Quantity:
 
             return 'trunc', number, units(True)  # "{} {}".format(number, units)
 
-    def short_humanize(self, *, try_metric, tolerance):
+    def short_humanize(self, **_3to2kwargs):
+        tolerance = _3to2kwargs['tolerance']; del _3to2kwargs['tolerance']
+        try_metric = _3to2kwargs['try_metric']; del _3to2kwargs['try_metric']
         cutoff = 1000
 
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
