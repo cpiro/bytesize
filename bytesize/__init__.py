@@ -8,7 +8,6 @@ from builtins import str
 from future import standard_library
 standard_library.install_aliases()
 from builtins import object
-# xxx cli
 
 __all__ = ['formatter', 'Quantity']
 

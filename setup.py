@@ -1,14 +1,9 @@
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
 from setuptools import setup, find_packages
 
 # (hurry.filesize) A simple Python library for human readable file sizes (or anything sized in bytes).
 # (hfilesize) Human Readable File Sizes
 # (datasize) Python integer subclass to handle arithmetic and formatting of integers with data size units
+# (byteformat)
 
 # module docstring, readme.md, readthedocs (https://github.com/mtik00/obfuscator)
 # travis, coverall
@@ -24,8 +19,8 @@ setup(
     # metadata for upload to PyPI
     author = "Chris Piro",
     author_email = "cpiro@cpiro.com",
-    description = "xxx",
+    description = "Generate human-readable string representations of quantities of bytes",
     license = "GPL",
-    keywords = "byte size file data units parser formatter xxx",
+    keywords = "byte size file data units formatter human pretty",
     url = "xxx",
 )
