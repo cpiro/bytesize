@@ -13,6 +13,7 @@ from future import standard_library
 standard_library.install_aliases()
 import sys
 from nose.tools import *
+
 import bytesize as bs
 
 def pp(*args, **kwargs):
@@ -67,15 +68,15 @@ if bs.ureg:
 
 @raises(ValueError)
 def test_format_mt_mutex():
-    '{:mt}'.format(bs.ByteQuantity(10000))
+    '{:mt}'.format(bs.Quantity(10000))
 
 def test_parse_spec():
     def reversible(spec_tuple):
-        spec = bs.ByteQuantity.unparse_spec(*spec_tuple)
-        assert spec_tuple == bs.ByteQuantity.parse_spec(spec)
+        spec = bs.Quantity.unparse_spec(*spec_tuple)
+        assert spec_tuple == bs.Quantity.parse_spec(spec)
 
     def basic(spec_tuple, values):
-        spec = bs.ByteQuantity.unparse_spec(*spec_tuple)
+        spec = bs.Quantity.unparse_spec(*spec_tuple)
         fill, align, width, precision, type_ = spec_tuple
         format_str = '{:' + spec + '}'
 
@@ -93,7 +94,7 @@ def test_parse_spec():
 
             print("{:13} {!r}".format('', byt))
 
-    values = [bs.ByteQuantity(k) for k in (1, 999, 1023, 102526)]
+    values = [bs.Quantity(k) for k in (1, 999, 1023, 102526)]
 
     for spec_tuple in parse_spec_cases:
         yield reversible, spec_tuple
@@ -115,7 +116,7 @@ def test_fudges():
 
     def check_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
-        sig, exp, rem = bs.ByteQuantity(b).factor(base=base, cutoff=cutoff)
+        sig, exp, rem = bs.Quantity(b).factor(base=base, cutoff=cutoff)
         assert b == sig * base**exp + rem
         assert sig < cutoff or (sig == cutoff and base > cutoff)
 
@@ -123,7 +124,7 @@ def test_fudges():
         width = 5
         whole = "{:d}.".format(sig)
         places = width - len(whole)
-        digits = bs.ByteQuantity.decimal_part(places, rem, base, exp)
+        digits = bs.Quantity.decimal_part(places, rem, base, exp)
         assert isinstance(digits, str)  # sure
 
         # should be the same as the floating division
