@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name = 'bytesize',
-    version = '0',
+    version = '0.1',
     packages = find_packages(),
     extras_require = {
         'pint': 'pint>=0.6'

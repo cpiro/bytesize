@@ -3,10 +3,8 @@
 import os
 import sys
 import math
-import pprint
-pp = pprint.pprint
 
-import pretty_capacity
+import bytesize
 
 class Bin:
     def __init__(self, size):
@@ -194,7 +192,7 @@ def main():
         #print("{:~}\t{:~}\t{}".format(quantity.to('byte'), quantity, to_human(quantity)))
         expr = "assert to_human(ureg({!r})) == {!r}".format(
                                quantity_s,
-                               pretty_capacity.to_human(pretty_capacity.ureg(quantity_s)))
+                               bytesize.to_human(bytesize.ureg(quantity_s)))
 
         print(expr)
         #assert to_human(ureg(quantity_s)) == quantity_s
