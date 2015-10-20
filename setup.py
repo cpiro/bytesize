@@ -12,6 +12,9 @@ setup(
     name = 'bytesize',
     version = '0.1',
     packages = find_packages(),
+    install_requires = [
+        'future>=0.15.2',
+    ],
     extras_require = {
         'pint': 'pint>=0.6'
     },
