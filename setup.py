@@ -25,5 +25,5 @@ setup(
     description = "Generate human-readable string representations of quantities of bytes",
     license = "GPL",
     keywords = "byte size file data units formatter human pretty",
-    url = "xxx",
+    url = "https://github.com/cpiro/bytesize",
 )
