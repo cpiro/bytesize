@@ -94,13 +94,30 @@ def test_parse_spec():
 
 parse_spec_cases = [
     (fill, align, width, precision, type_)
-    for fill in (None, ' ')
+    for fill in (None, ' ', '0')
     for align in (None, '>', '<', '=', '^')
     for width in (None, 6, 10, 15)
     for precision in (None, 5, 6, 7, 8, 9, 10, 11)
     for type_ in ('', 't', 'm') #, ' ', '=', '.', '0', '>')
     if not (fill is not None and align is None)
 ]
+
+def test_simple():
+    q = bs.Quantity(1400605)
+    assert int(q) == 1400605
+    assert str(q) == '1.335 MiB'
+    assert repr(q) == '<Quantity 1400605>'
+    # gently exercise 0-padding special case in parse_spec
+    assert '{:<0}'.format(q) == '1.335 MiB'
+    assert '{:0}'.format(q) == '1.335 MiB'
+
+@raises(ValueError)
+def test_format_specifier_missing_precision():
+    '{:.}'.format(bs.Quantity(1400605))
+
+@raises(bs.UnitNoExistError)
+def test_way_too_big():
+    print(bs.Quantity(100000000000000000000000000000))
 
 def test_fudges():
     def check_formatter(b, result, fmt):
@@ -149,6 +166,9 @@ def test_fudges():
                 yield check_formatter, b, result, fmt
                 yield check_guts, b, result, kwargs
                 yield check_reverse, b, result
+
+def test_short():
+    pass # xxx
 
 def make_fudges():
     import pprint
