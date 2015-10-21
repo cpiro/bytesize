@@ -44,8 +44,7 @@ units_table = {
 
 def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     def inner(value):
-        # xxx width vs digits name, then **kwargs this
-        kind, number, units = Quantity(value).humanize(base=base, cutoff=cutoff, width=digits, abbrev=abbrev)
+        kind, number, units = Quantity(value).humanize(base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
         result = Quantity.string_format(kind, number, units)
         return result
     return inner
@@ -87,16 +86,16 @@ class Quantity(object):
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
         base, cutoff, digits_width, units_width = Quantity.format_options(fill, align, string_width, precision, type_)
-        kind, number, units = self.humanize(base=base, cutoff=cutoff, width=digits_width)
+        kind, number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width)
         result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
         return result
 
-    def humanize(self, base=1024, cutoff=1000, width=5, abbrev=True):
+    def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         """returns (kind, number, units)"""
         assert base in (1000, 1024)
         assert cutoff in (1000, 1024)
         assert base >= cutoff
-        assert width >= 5
+        assert digits >= 5
 
         sig, exp, rem = self.factor(base=base, cutoff=cutoff)
 
@@ -112,17 +111,15 @@ class Quantity(object):
         if rem == 0:
             return 'exact', sig, units(sig != 1)  # "{:d} {}".format(sig, units)
         else:
-            whole = "{:d}.".format(sig)
-            digits = Quantity.decimal_part(width - len(whole), rem, base, exp)
-            number = whole + digits
+            whole_str = "{:d}.".format(sig)
+            digits_str = Quantity.decimal_part(digits - len(whole_str), rem, base, exp)
+            number_str = whole_str + digits_str
             frac_quot = rem / base**exp
-            assert len(number) == width
+            assert len(number_str) == digits
 
-            return 'trunc', number, units(True)  # "{} {}".format(number, units)
+            return 'trunc', number_str, units(True)  # "{} {}".format(number, units)
 
-    def short_humanize(self, **_3to2kwargs):
-        tolerance = _3to2kwargs['tolerance']; del _3to2kwargs['tolerance']
-        try_metric = _3to2kwargs['try_metric']; del _3to2kwargs['try_metric']
+    def short_humanize(self, try_metric=True, tolerance=0.01):
         cutoff = 1000
 
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
