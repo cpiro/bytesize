@@ -15,7 +15,7 @@ class DifferentRegistryError(ValueError):
     def __init__(self, *args):
         if args is ():
             args = ("Cannot operate between quantities of different registries",)
-        super().__init__(*args)
+        super(DifferentRegistryError, self).__init__(*args)
 
 units_table = {
     1000: [
