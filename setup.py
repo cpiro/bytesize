@@ -9,6 +9,8 @@ from setuptools import setup, find_packages
 # travis, coverall
 # https://pypi.python.org/pypi/datasize/0.1 (model)
 # https://github.com/pypa/pip (pypi badge)
+# https://pypi.python.org/pypi/coverage (lots of badges)
+
 
 setup(
     name = 'bytesize',
