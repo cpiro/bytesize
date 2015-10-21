@@ -7,11 +7,12 @@ from setuptools import setup, find_packages
 
 # module docstring, readme.md, readthedocs (https://github.com/mtik00/obfuscator)
 # travis, coverall
+# https://pypi.python.org/pypi/datasize/0.1 (model)
 
 setup(
     name = 'bytesize',
     version = '0.1',
-    packages = find_packages(),
+    packages = ['bytesize'],
     install_requires = [
         'future>=0.15.2',
     ],
@@ -26,4 +27,5 @@ setup(
     license = "GPL",
     keywords = "byte size file data units formatter human pretty",
     url = "https://github.com/cpiro/bytesize",
+    bugtrack_url = "https://github.com/cpiro/bytesize/issues",
 )
