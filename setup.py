@@ -8,6 +8,7 @@ from setuptools import setup, find_packages
 # module docstring, readme.md, readthedocs (https://github.com/mtik00/obfuscator)
 # travis, coverall
 # https://pypi.python.org/pypi/datasize/0.1 (model)
+# https://github.com/pypa/pip (pypi badge)
 
 setup(
     name = 'bytesize',
