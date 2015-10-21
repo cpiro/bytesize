@@ -43,6 +43,10 @@ units_table = {
 }
 
 def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
+    assert base in (1000, 1024)
+    assert cutoff in (1000, 1024)
+    assert base >= cutoff
+    assert digits >= 5
     def inner(value):
         kind, number, units = Quantity(value).humanize(base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
         result = Quantity.string_format(kind, number, units)
