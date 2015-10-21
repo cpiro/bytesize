@@ -10,5 +10,5 @@ env:
   - WITH_PINT=false
 install:
   - "python setup.py install"
-  - "[[ \"$WITH_PINT\" = true ]] && pip install pint"
+  - "[[ \"$WITH_PINT\" = true ]] && pip install pint || true"
 script: nosetests
