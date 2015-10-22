@@ -13,6 +13,7 @@ env:
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
+  - pip install -e .
   - "[[ \"$WITH_PINT\" = true ]] && pip install pint || true"
 script:
   - py.test --cov bytesize
