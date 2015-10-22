@@ -8,7 +8,7 @@ from nose.tools import *
 
 import bytesize as bs
 if __name__ != '__main__':
-    from bytesize.test_cases import *
+    from test_cases import *
 
 def pp(*args, **kwargs):
     return bs.formatter(**kwargs)(*args)
