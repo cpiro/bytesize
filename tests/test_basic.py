@@ -186,9 +186,16 @@ def catch(f):
 def make_hardcases():
     import pprint
 
-    kwargses = [{'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
-                for abbrev in (True, False)
-                for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))]
+    kwargses = [
+        {'_short': False, 'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
+        for abbrev in (True, False)
+        for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))
+    ]
+    # + [
+    #     {'_short': True, 'try_metric': try_metric, 'tolerance': tolerance}
+    #     for try_metric in (True, False)
+    #     for tolerance in (0.01,)
+    # ]
 
     cases = [
         10**dec *
@@ -215,7 +222,13 @@ __all__ = ['kwargses', 'hardcases']
     print("hardcases = [")
 
     for case in cases:
-        results = tuple(catch(bs.formatter(**kwargs))(case) for kwargs in kwargses)
+        def mk_formatter(*, _short, **real_kwargs):
+            if _short:
+                return catch(bs.short_formatter(**real_kwargs))
+            else:
+                return catch(bs.formatter(**real_kwargs))
+
+        results = tuple(mk_formatter(**kwargs)(case) for kwargs in kwargses)
         if any(results):
             print("    ({}, {!r}),".format(case, results))
 
