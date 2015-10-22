@@ -190,12 +190,11 @@ def make_hardcases():
         {'_short': False, 'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
         for abbrev in (True, False)
         for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))
+    ] + [
+        {'_short': True, 'try_metric': try_metric, 'tolerance': tolerance}
+        for try_metric in (True, False)
+        for tolerance in (0.01,)
     ]
-    # + [
-    #     {'_short': True, 'try_metric': try_metric, 'tolerance': tolerance}
-    #     for try_metric in (True, False)
-    #     for tolerance in (0.01,)
-    # ]
 
     cases = [
         10**dec *
