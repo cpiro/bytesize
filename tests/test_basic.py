@@ -10,6 +10,17 @@ import bytesize as bs
 if __name__ != '__main__':
     from test_cases import *
 
+def mk_formatter(*, _short, _catch, **real_kwargs):
+    if _catch:
+        maybe_catch = catch
+    else:
+        maybe_catch = lambda f: f
+
+    if _short:
+        return maybe_catch(bs.short_formatter(**real_kwargs))
+    else:
+        return maybe_catch(bs.formatter(**real_kwargs))
+
 def pp(*args, **kwargs):
     return bs.formatter(**kwargs)(*args)
 
@@ -125,7 +136,7 @@ def test_hardcases():
     def check_formatter(b, result, fmt):
         assert fmt(b) == result
 
-    def check_guts(b, result, kwargs):
+    def check_long_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
         sig, exp, rem = bs.Quantity(b).factor(base=base, cutoff=cutoff)
         assert b == sig * base**exp + rem
@@ -150,24 +161,31 @@ def test_hardcases():
         assert len(digits) == places
         assert ('.' in result) == (rem != 0), "there's a decimal dot iff the value is not exact"
 
-    def check_reverse(b, result):
+    def check_reverse(b, result, kwargs):
         """parse `result` back through pint, check that it's <= to the original,
         within truncation error
         """
-        if bs.ureg:
-            pint_bytes = bs.ureg(result).to('bytes').magnitude
-            if isinstance(pint_bytes, float):
-                assert 0.999 <= (pint_bytes / b) <= 1, "ureg(`result`) should be <= `b`, but not by too much"
-            else:
-                assert pint_bytes == b
+        if kwargs['_short']:
+            result += 'B'
+            lower_bound = 1.0 - kwargs['tolerance']
+        else:
+            lower_bound = 0.999
+
+        pint_bytes = bs.ureg(result).to('bytes').magnitude
+        if isinstance(pint_bytes, float):
+            assert lower_bound <= (pint_bytes / b) <= 1, "ureg(`result`) should be <= `b`, but not by too much"
+        else:
+            assert pint_bytes == b
 
     for b, results in hardcases:
         for result, kwargs in zip(results, kwargses):
-            fmt = bs.formatter(**kwargs)
+            fmt = mk_formatter(_catch=False, **kwargs)
             if not isinstance(result, Exception):
                 yield check_formatter, b, result, fmt
-                yield check_guts, b, result, kwargs
-                yield check_reverse, b, result
+                if not kwargs['_short']:
+                    yield check_long_guts, b, result, kwargs
+                if bs.ureg:
+                    yield check_reverse, b, result, kwargs
             else:
                 yield raises(type(result))(fmt), b
 
@@ -221,12 +239,6 @@ __all__ = ['kwargses', 'hardcases']
     print("hardcases = [")
 
     for case in cases:
-        def mk_formatter(*, _short, **real_kwargs):
-            if _short:
-                return catch(bs.short_formatter(**real_kwargs))
-            else:
-                return catch(bs.formatter(**real_kwargs))
-
         results = tuple(mk_formatter(**kwargs)(case) for kwargs in kwargses)
         if any(results):
             print("    ({}, {!r}),".format(case, results))
