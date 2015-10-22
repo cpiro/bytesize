@@ -174,16 +174,17 @@ def test_fudges():
 def test_short():
     pass # xxx
 
+def catch(f):
+    """Wrap `f` such that exceptions are returned, rather than raised"""
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except BaseException as exn:
+            return exn
+    return wrapper
+
 def make_fudges():
     import pprint
-    def safe_formatter(*args, **kwargs):
-        fmt = bs.formatter(*args, **kwargs)
-        def inner(value):
-            try:
-                return fmt(value)
-            except bs.UnitNoExistError as exn:
-                return exn
-        return inner
 
     kwargses = [{'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
                 for abbrev in (True, False)
@@ -214,7 +215,7 @@ __all__ = ['kwargses', 'fudge_cases']
     print("fudge_cases = [")
 
     for case in cases:
-        results = tuple(safe_formatter(**kwargs)(case) for kwargs in kwargses)
+        results = tuple(catch(bs.formatter(**kwargs))(case) for kwargs in kwargses)
         if any(results):
             print("    ({}, {!r}),".format(case, results))
 
