@@ -11,11 +11,10 @@ env:
   - WITH_PINT=true
   - WITH_PINT=false
 install:
-  - pip install -e .
+  - pip install -r requirements.txt
+  - pip install -r requirements-test.txt
   - "[[ \"$WITH_PINT\" = true ]] && pip install pint || true"
-before_script:
-  - pip install coveralls
 script:
-  - nosetests --with-coverage --cover-package=bytesize
+  - py.test --cov bytesize
 after_success:
   - coveralls
