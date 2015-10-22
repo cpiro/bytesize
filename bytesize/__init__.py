@@ -17,7 +17,7 @@ class DifferentRegistryError(ValueError):
             args = ("Cannot operate between quantities of different registries",)
         super(DifferentRegistryError, self).__init__(*args)
 
-units_table = {
+UNITS_TABLE = {
     1000: [
         ('', ''),
         ('k', 'kilo'),
@@ -105,7 +105,7 @@ class Quantity(object):
 
         def units(plural):
             try:
-                prefix = units_table[base][exp][0 if abbrev else 1]
+                prefix = UNITS_TABLE[base][exp][0 if abbrev else 1]
                 base_unit = 'B' if abbrev else ('bytes' if plural else 'byte')
                 return prefix + base_unit
             except IndexError:
@@ -142,7 +142,7 @@ class Quantity(object):
 
         def units(plural):
             try:
-                return units_table[base][exp][0]
+                return UNITS_TABLE[base][exp][0]
             except IndexError:
                 pass
             raise UnitNoExistError()
@@ -379,7 +379,7 @@ try:
     ureg = pint.UnitRegistry('/dev/null')
     ureg.define("bit = [data] = b")
     ureg.define("byte = 8 bit = B")
-    for base, subtable in units_table.items():
+    for base, subtable in UNITS_TABLE.items():
         for exp, (abbrev, prefix) in enumerate(subtable):
             if exp != 0:
                 ureg.define('{}- = {}**{} = {}-'.format(prefix, base, exp, abbrev))
