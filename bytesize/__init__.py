@@ -383,6 +383,5 @@ try:
         for exp, (abbrev, prefix) in enumerate(subtable):
             if exp != 0:
                 ureg.define('{}- = {}**{} = {}-'.format(prefix, base, exp, abbrev))
-
-except ImportError:
-    ureg = None
+except ImportError:  # pragma: no cover
+    ureg = None      # pragma: no cover
