@@ -16,6 +16,6 @@ install:
   - pip install -e .
   - "[[ \"$WITH_PINT\" = true ]] && pip install pint || true"
 script:
-  - py.test --cov bytesize
+  - nosetests --with-coverage --cover-package=bytesize
 after_success:
   - coveralls
