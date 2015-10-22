@@ -1,6 +1,6 @@
 __test__ = False
 from bytesize import UnitNoExistError
-__all__ = ['kwargses', 'fudge_cases']
+__all__ = ['kwargses', 'hardcases']
 
 kwargses = [{'abbrev': True, 'base': 1024, 'cutoff': 1000},
  {'abbrev': True, 'base': 1024, 'cutoff': 1024},
@@ -8,7 +8,7 @@ kwargses = [{'abbrev': True, 'base': 1024, 'cutoff': 1000},
  {'abbrev': False, 'base': 1024, 'cutoff': 1000},
  {'abbrev': False, 'base': 1024, 'cutoff': 1024},
  {'abbrev': False, 'base': 1000, 'cutoff': 1000}]
-fudge_cases = [
+hardcases = [
     (0, ('0 B', '0 B', '0 B', '0 bytes', '0 bytes', '0 bytes')),
     (1, ('1 B', '1 B', '1 B', '1 byte', '1 byte', '1 byte')),
     (2, ('2 B', '2 B', '2 B', '2 bytes', '2 bytes', '2 bytes')),

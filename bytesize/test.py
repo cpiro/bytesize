@@ -1,4 +1,4 @@
-# python test.py make_fudges
+# python test.py make_hardcases
 
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from builtins import *
@@ -8,7 +8,7 @@ from nose.tools import *
 
 import bytesize as bs
 if __name__ != '__main__':
-    from bytesize.test_data import *
+    from bytesize.test_cases import *
 
 def pp(*args, **kwargs):
     return bs.formatter(**kwargs)(*args)
@@ -121,7 +121,7 @@ def test_format_specifier_missing_precision():
 def test_way_too_big():
     print(bs.Quantity(100000000000000000000000000000))
 
-def test_fudges():
+def test_hardcases():
     def check_formatter(b, result, fmt):
         assert fmt(b) == result
 
@@ -161,7 +161,7 @@ def test_fudges():
             else:
                 assert pint_bytes == b
 
-    for b, results in fudge_cases:
+    for b, results in hardcases:
         for result, kwargs in zip(results, kwargses):
             fmt = bs.formatter(**kwargs)
             if not isinstance(result, Exception):
@@ -183,7 +183,7 @@ def catch(f):
             return exn
     return wrapper
 
-def make_fudges():
+def make_hardcases():
     import pprint
 
     kwargses = [{'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
@@ -208,11 +208,11 @@ def make_fudges():
 
     print("""__test__ = False
 from bytesize import UnitNoExistError
-__all__ = ['kwargses', 'fudge_cases']
+__all__ = ['kwargses', 'hardcases']
 """)
 
     print("kwargses = {}".format(pprint.pformat(kwargses)))
-    print("fudge_cases = [")
+    print("hardcases = [")
 
     for case in cases:
         results = tuple(catch(bs.formatter(**kwargs))(case) for kwargs in kwargses)
@@ -223,5 +223,5 @@ __all__ = ['kwargses', 'fudge_cases']
 
 
 if __name__ == '__main__':
-    if sys.argv[1:] == ['make_fudges']:
-        make_fudges()
+    if sys.argv[1:] == ['make_hardcases']:
+        make_hardcases()
