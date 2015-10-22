@@ -163,10 +163,12 @@ def test_fudges():
     for b, results in fudge_cases:
         for result, kwargs in zip(results, kwargses):
             fmt = bs.formatter(**kwargs)
-            if result is not None:
+            if not isinstance(result, Exception):
                 yield check_formatter, b, result, fmt
                 yield check_guts, b, result, kwargs
                 yield check_reverse, b, result
+            else:
+                yield raises(type(result))(fmt), b
 
 def test_short():
     pass # xxx
@@ -178,8 +180,8 @@ def make_fudges():
         def inner(value):
             try:
                 return fmt(value)
-            except bs.UnitNoExistError:
-                return None
+            except bs.UnitNoExistError as exn:
+                return exn
         return inner
 
     kwargses = [{'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
