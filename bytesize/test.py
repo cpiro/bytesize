@@ -7,7 +7,8 @@ import sys
 from nose.tools import *
 
 import bytesize as bs
-from bytesize.test_data import *
+if __name__ != '__main__':
+    from bytesize.test_data import *
 
 def pp(*args, **kwargs):
     return bs.formatter(**kwargs)(*args)
