@@ -10,16 +10,19 @@ import bytesize as bs
 if __name__ != '__main__':
     from test_cases import *
 
-def mk_formatter(*, _short, _catch, **real_kwargs):
+def mk_formatter(**kwargs):
+    _catch = kwargs['_catch']; del kwargs['_catch']
+    _short = kwargs['_short']; del kwargs['_short']
+
     if _catch:
         maybe_catch = catch
     else:
         maybe_catch = lambda f: f
 
     if _short:
-        return maybe_catch(bs.short_formatter(**real_kwargs))
+        return maybe_catch(bs.short_formatter(**kwargs))
     else:
-        return maybe_catch(bs.formatter(**real_kwargs))
+        return maybe_catch(bs.formatter(**kwargs))
 
 def pp(*args, **kwargs):
     return bs.formatter(**kwargs)(*args)
