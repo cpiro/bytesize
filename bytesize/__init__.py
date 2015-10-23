@@ -1,5 +1,6 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from builtins import *
+from future.utils import PY2
 
 import os
 import sys
@@ -7,6 +8,16 @@ import math
 import string
 
 __all__ = ['formatter', 'short_formatter', 'Quantity']
+
+
+if PY2:
+    def is_string(ss):
+        import __builtin__
+        return (isinstance(ss, str) or            # `unicode` or `future.builtin.str`
+                isinstance(ss, __builtin__.str))  # a real Python 2 `str`, from old code
+else:
+    def is_string(ss):
+        return isinstance(ss, str)
 
 
 class UnitNoExistError(RuntimeError):
@@ -27,7 +38,7 @@ class NeedPintForParsingError(RuntimeError):
 
 
 UNITS_TABLE = {
-    1000: [
+    1000: [  # decimal SI prefixes
         ('', ''),
         ('k', 'kilo'),
         ('M', 'mega'),
@@ -38,7 +49,7 @@ UNITS_TABLE = {
         ('Z', 'zetta'),
         ('Y', 'yotta'),
     ],
-    1024: [
+    1024: [  # binary IEC prefixes
         ('', ''),
         ('Ki', 'kibi'),
         ('Mi', 'mebi'),
@@ -75,10 +86,19 @@ def short_formatter(try_metric=True, tolerance=0.01):
 
 
 class Quantity(object):
+    """Represents a quantity of bytes, suitable for formatting."""
+
     def __init__(self, value):
         """Interpret `value` as a number of bytes.
+
+        If `value` is an `int`, this object represents that number of
+        bytes.
+
+        If `pint` is available, `value` may also be specified as a `pint`
+        quantity or a `str` parsable by `pint` to a number of bytes.
+
         """
-        if ureg and isinstance(value, str):
+        if ureg and is_string(value):
             value = ureg(value)
 
         if ureg and isinstance(value, pint.quantity._Quantity):

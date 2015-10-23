@@ -1,25 +1,28 @@
-from __future__ import (absolute_import, division, print_function, unicode_literals)
-from builtins import *
+# Don't import future. Real Python 2 users won't
 
 from nose.tools import raises
+from future.utils import PY2
 
 import bytesize as bs
 
 
 def test_simple():
-    q = bs.Quantity(1400605)
-    assert int(q) == 1400605
-    assert str(q) == '1.335 MiB'
-    assert repr(q) == '<Quantity 1400605>'
+    def for_quantity(q):
+        assert int(q) == 1400605
+        assert str(q) == '1.335 MiB'
+        assert repr(q) == '<Quantity 1400605>'
 
-    # gently exercise 0-padding special case in parse_spec
-    assert '{:<0}'.format(q) == '1.335 MiB'
-    assert '{:0}'.format(q) == '1.335 MiB'
+        # gently exercise 0-padding special case in parse_spec
+        assert '{:<0}'.format(q) == '1.335 MiB'
+        assert '{:0}'.format(q) == '1.335 MiB'
 
-    pp = bs.formatter()
-    assert pp(0) == '0 B'
-    assert pp(-0) == '0 B'
+        pp = bs.formatter()
+        assert pp(0) == '0 B'
+        assert pp(-0) == '0 B'
 
+    yield for_quantity, bs.Quantity(1400605)
+    if PY2:
+        yield for_quantity, bs.Quantity(eval('1400605L'))
 
 def test_parsing():
     pp = bs.formatter()
@@ -37,6 +40,7 @@ def test_parsing():
         ('1099511000000 B', '0.999 TiB'),
         ('1 TiB', '1 TiB'),
         ('24008 B', '23.44 KiB'),
+        (u'1400605 B', '1.335 MiB'),
     ]
 
     if bs.ureg:
