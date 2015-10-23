@@ -17,13 +17,15 @@ if bs.ureg:
         pp = bs.formatter()
         pp(other_ureg('10 bytes'))
 
-def test_hands():
+def test_zeros():
     pp = bs.formatter()
     assert pp(0) == '0 B'
     assert pp(-0) == '0 B'
-    assert pp('-0 B') == '0 B'
 
+def test_hands():
+    pp = bs.formatter()
     data = [
+        ('-0 B', '0 B'),
         ('10230 B', '9.990 KiB'),
         ('11366 B', '11.09 KiB'),
         ('102391 B', '99.99 KiB'),
@@ -37,10 +39,15 @@ def test_hands():
         ('1 TiB', '1 TiB'),
         ('24008 B', '23.44 KiB'),
     ]
-    def check_direct(b, result):
-        assert pp(b) == result
-        if bs.ureg:
+
+    if bs.ureg:
+        def check_direct(b, result):
+            assert pp(b) == result
             assert pp(bs.ureg(b)) == result
+    else:
+        @raises(bs.NeedPintForParsingError)
+        def check_direct(b, result):
+            pp(b)
 
     for b, result in data:
         yield check_direct, b, result
@@ -105,7 +112,7 @@ def test_format_specifier_missing_precision():
 @raises(bs.UnitNoExistError)
 def test_way_too_big():
     print(bs.Quantity(100000000000000000000000000000))
-    
+
 def mk_formatter(**kwargs):
     _catch = kwargs['_catch']; del kwargs['_catch']
     _short = kwargs['_short']; del kwargs['_short']

@@ -17,6 +17,11 @@ class DifferentRegistryError(ValueError):
             args = ("Cannot operate between quantities of different registries",)
         super(DifferentRegistryError, self).__init__(*args)
 
+class NeedPintForParsingError(RuntimeError):
+    def __init__(self, value):
+        msg = "Cannot parse {} {!r} as Quantity without Pint installed".format(type(value).__name__, value)
+        super(NeedPintForParsingError, self).__init__(msg)
+
 UNITS_TABLE = {
     1000: [
         ('', ''),
@@ -61,9 +66,8 @@ def short_formatter(try_metric=True, tolerance=0.01):
 
 class Quantity(object):
     def __init__(self, value):
-        """Tries to interpret `value` as a number of bytes.
-        Returns (int) number of bytes"""
-
+        """Interpret `value` as a number of bytes.
+        """
         if ureg and isinstance(value, str):
             value = ureg(value)
 
@@ -74,9 +78,10 @@ class Quantity(object):
             bytes_f = value.to(ureg.byte).magnitude
             assert isinstance(bytes_f, int) or bytes_f.is_integer()
             self.value = int(bytes_f)
-        else:
-            assert isinstance(value, int)
+        elif isinstance(value, int):
             self.value = value
+        else:
+            raise NeedPintForParsingError(value)
 
     def __int__(self):
         return self.value
