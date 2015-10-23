@@ -27,16 +27,9 @@ def mk_formatter(**kwargs):
     _catch = kwargs['_catch']; del kwargs['_catch']
     _short = kwargs['_short']; del kwargs['_short']
 
-    if _catch:
-        maybe_catch = catch
-    else:
-        def maybe_catch(f):
-            return f
-
-    if _short:
-        return maybe_catch(bs.short_formatter(**kwargs))
-    else:
-        return maybe_catch(bs.formatter(**kwargs))
+    maybe_catch = catch if _catch else lambda f: f
+    factory = bs.short_formatter if _short else bs.formatter
+    return maybe_catch(factory(**kwargs))
 
 
 def test_hardcases():
