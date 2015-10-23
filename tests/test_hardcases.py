@@ -138,9 +138,11 @@ __all__ = ['kwargses', 'hardcases']
     print("hardcases = [")
 
     for case in cases:
-        results = tuple(mk_formatter(_catch=True, **kwargs)(case) for kwargs in kwargses)
-        cells = ', '.join('{:19}'.format(xx) for xx in re.split(',', repr(results)))
-        print("    ({:31}, {}),".format(case, cells))
+        results = tuple(mk_formatter(_catch=True, **kwargs)(case)
+                        for kwargs in kwargses)
+        wide_results = ('{:19}'.format(rr)
+                        for rr in re.split(',', repr(results)))
+        print("    ({:31}, {}),".format(case, ', '.join(wide_results)))
 
     print("]")
 
