@@ -6,10 +6,10 @@ from setuptools import setup, find_packages
 # (byteformat)
 
 # module docstring, readme.md, readthedocs (https://github.com/mtik00/obfuscator)
-# travis, coverall
 # https://pypi.python.org/pypi/datasize/0.1 (model)
 # https://github.com/pypa/pip (pypi badge)
 # https://pypi.python.org/pypi/coverage (lots of badges)
+# https://github.com/hgrecco/pint (model)
 
 setup(
     name = 'bytesize',
