@@ -103,15 +103,15 @@ def test_hardcases():
 def generate():
     import pprint
 
-    kwargses = tuple([
+    kwargses = tuple(
         {'_short': False, 'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
         for abbrev in (True, False)
         for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))
-    ] + [
+    ) + tuple(
         {'_short': True, 'try_metric': try_metric, 'tolerance': tolerance}
         for try_metric in (True, False)
         for tolerance in (0.01,)
-    ])
+    )
 
     cases = [
         10**dec *

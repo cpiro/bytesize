@@ -2,14 +2,14 @@ __test__ = False
 from bytesize import UnitNoExistError
 __all__ = ['kwargses', 'hardcases']
 
-kwargses = [{'_short': False, 'abbrev': True, 'base': 1024, 'cutoff': 1000},
+kwargses = ({'_short': False, 'abbrev': True, 'base': 1024, 'cutoff': 1000},
  {'_short': False, 'abbrev': True, 'base': 1024, 'cutoff': 1024},
  {'_short': False, 'abbrev': True, 'base': 1000, 'cutoff': 1000},
  {'_short': False, 'abbrev': False, 'base': 1024, 'cutoff': 1000},
  {'_short': False, 'abbrev': False, 'base': 1024, 'cutoff': 1024},
  {'_short': False, 'abbrev': False, 'base': 1000, 'cutoff': 1000},
  {'_short': True, 'tolerance': 0.01, 'try_metric': True},
- {'_short': True, 'tolerance': 0.01, 'try_metric': False}]
+ {'_short': True, 'tolerance': 0.01, 'try_metric': False})
 hardcases = [
     (                              0, ('0 B'             ,  '0 B'             ,  '0 B'             ,  '0 bytes'         ,  '0 bytes'         ,  '0 bytes'         ,  '0'               ,  '0')              ),
     (                              1, ('1 B'             ,  '1 B'             ,  '1 B'             ,  '1 byte'          ,  '1 byte'          ,  '1 byte'          ,  '1'               ,  '1')              ),
