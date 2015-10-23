@@ -10,6 +10,14 @@ from setuptools import setup, find_packages
 # https://github.com/pypa/pip (pypi badge)
 # https://pypi.python.org/pypi/coverage (lots of badges)
 # https://github.com/hgrecco/pint (model)
+# http://django-tastypie.readthedocs.org/en/latest/index.html (model for dox)
+
+# long_description = '\n\n'.join([read('README'),
+#                                 read('AUTHORS'),
+#                                 read('CHANGES')])
+
+# __doc__ = long_description
+# setup(long_description=long_description,)
 
 setup(
     name = 'bytesize',
