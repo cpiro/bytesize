@@ -4,6 +4,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from builtins import *
 
 import sys
+import re
 from nose.tools import raises
 
 import bytesize as bs
@@ -130,7 +131,8 @@ __all__ = ['kwargses', 'hardcases']
 
     for case in cases:
         results = tuple(mk_formatter(_catch=True, **kwargs)(case) for kwargs in kwargses)
-        print("    ({}, {!r}),".format(case, results))
+        cells = ', '.join('{:19}'.format(xx) for xx in re.split(',', repr(results)))
+        print("    ({:31}, {}),".format(case, cells))
 
     print("]")
 
