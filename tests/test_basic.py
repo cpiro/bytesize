@@ -107,4 +107,3 @@ parse_spec_cases = [
     for type_ in ('', 't', 'm') #, ' ', '=', '.', '0', '>')
     if not (fill is not None and align is None)
 ]
-
