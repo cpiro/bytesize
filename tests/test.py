@@ -4,75 +4,46 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from builtins import *
 
 import sys
-from nose.tools import *
+from nose.tools import raises
 
 import bytesize as bs
 if __name__ != '__main__':
     from test_cases import *
 
-def mk_formatter(**kwargs):
-    _catch = kwargs['_catch']; del kwargs['_catch']
-    _short = kwargs['_short']; del kwargs['_short']
-
-    if _catch:
-        maybe_catch = catch
-    else:
-        maybe_catch = lambda f: f
-
-    if _short:
-        return maybe_catch(bs.short_formatter(**kwargs))
-    else:
-        return maybe_catch(bs.formatter(**kwargs))
-
-def pp(*args, **kwargs):
-    return bs.formatter(**kwargs)(*args)
-
 if bs.ureg:
-    def undefine_ureg():
-        bs._saved_ureg = bs.ureg
-        bs.ureg = None
-    def redefine_ureg():
-        bs.ureg = bs._saved_ureg
-        bs._saved_ureg = None
-
-    @with_setup(undefine_ureg, redefine_ureg)
-    def test_no_ureg():
-        assert bs.ureg is None
-        assert pp(0) == '0 B'
-
-    def test_has_ureg():
-        assert bs.ureg
-
     @raises(bs.DifferentRegistryError)
     def test_different_registry():
         other_ureg = bs.pint.UnitRegistry()
+        pp = bs.formatter()
         pp(other_ureg('10 bytes'))
 
-    def test_hands():
-        assert pp(0) == '0 B'
-        assert pp(-0) == '0 B'
-        assert pp('-0 B') == '0 B'
+def test_hands():
+    pp = bs.formatter()
+    assert pp(0) == '0 B'
+    assert pp(-0) == '0 B'
+    assert pp('-0 B') == '0 B'
 
-        data = [
-            ('10230 B', '9.990 KiB'),
-            ('11366 B', '11.09 KiB'),
-            ('102391 B', '99.99 KiB'),
-            ('999 KiB', '999 KiB'),
-            ('1000 KiB', '1000 KiB'),
-            ('1001 KiB', '0.977 MiB'),
-            ('1023 KiB', '0.999 MiB'),
-            ('1024 KiB', '1 MiB'),
-            ('1025 KiB', '1.000 MiB'),
-            ('1099511000000 B', '0.999 TiB'),
-            ('1 TiB', '1 TiB'),
-            ('24008 B', '23.44 KiB'),
-        ]
-        def check_direct(b, result):
-            assert pp(b) == result
+    data = [
+        ('10230 B', '9.990 KiB'),
+        ('11366 B', '11.09 KiB'),
+        ('102391 B', '99.99 KiB'),
+        ('999 KiB', '999 KiB'),
+        ('1000 KiB', '1000 KiB'),
+        ('1001 KiB', '0.977 MiB'),
+        ('1023 KiB', '0.999 MiB'),
+        ('1024 KiB', '1 MiB'),
+        ('1025 KiB', '1.000 MiB'),
+        ('1099511000000 B', '0.999 TiB'),
+        ('1 TiB', '1 TiB'),
+        ('24008 B', '23.44 KiB'),
+    ]
+    def check_direct(b, result):
+        assert pp(b) == result
+        if bs.ureg:
             assert pp(bs.ureg(b)) == result
 
-        for b, result in data:
-            yield check_direct, b, result
+    for b, result in data:
+        yield check_direct, b, result
 
 @raises(ValueError)
 def test_format_mt_mutex():
@@ -134,6 +105,20 @@ def test_format_specifier_missing_precision():
 @raises(bs.UnitNoExistError)
 def test_way_too_big():
     print(bs.Quantity(100000000000000000000000000000))
+    
+def mk_formatter(**kwargs):
+    _catch = kwargs['_catch']; del kwargs['_catch']
+    _short = kwargs['_short']; del kwargs['_short']
+
+    if _catch:
+        maybe_catch = catch
+    else:
+        maybe_catch = lambda f: f
+
+    if _short:
+        return maybe_catch(bs.short_formatter(**kwargs))
+    else:
+        return maybe_catch(bs.formatter(**kwargs))
 
 def test_hardcases():
     def check_formatter(b, result, fmt):
