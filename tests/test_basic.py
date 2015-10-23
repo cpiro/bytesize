@@ -192,9 +192,6 @@ def test_hardcases():
             else:
                 yield raises(type(result))(fmt), b
 
-def test_short():
-    pass # xxx
-
 def catch(f):
     """Wrap `f` such that exceptions are returned, rather than raised"""
     def wrapper(*args, **kwargs):
