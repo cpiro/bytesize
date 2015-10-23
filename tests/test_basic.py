@@ -68,6 +68,16 @@ def test_format_specifier_missing_precision():
 def test_way_too_big():
     print(bs.Quantity(100000000000000000000000000000))
 
+PARSE_SPEC_CASES = [
+    (fill, align, width, precision, type_)
+    for fill in (None, ' ', '0')
+    for align in (None, '>', '<', '=', '^')
+    for width in (None, 6, 10, 15)
+    for precision in (None, 5, 6, 7, 8, 9, 10, 11)
+    for type_ in ('', 't', 'm') #, ' ', '=', '.', '0', '>')
+    if not (fill is not None and align is None)
+]
+
 def test_parse_spec():
     def reversible(spec_tuple):
         spec = bs.Quantity.unparse_spec(*spec_tuple)
@@ -94,16 +104,6 @@ def test_parse_spec():
 
     values = [bs.Quantity(k) for k in (1, 999, 1023, 102526)]
 
-    for spec_tuple in parse_spec_cases:
+    for spec_tuple in PARSE_SPEC_CASES:
         yield reversible, spec_tuple
         yield basic, spec_tuple, values
-
-parse_spec_cases = [
-    (fill, align, width, precision, type_)
-    for fill in (None, ' ', '0')
-    for align in (None, '>', '<', '=', '^')
-    for width in (None, 6, 10, 15)
-    for precision in (None, 5, 6, 7, 8, 9, 10, 11)
-    for type_ in ('', 't', 'm') #, ' ', '=', '.', '0', '>')
-    if not (fill is not None and align is None)
-]
