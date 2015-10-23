@@ -10,19 +10,21 @@ import bytesize as bs
 if __name__ != '__main__':
     from test_cases import *
 
-if bs.ureg:
-    @raises(bs.DifferentRegistryError)
-    def test_different_registry():
-        other_ureg = bs.pint.UnitRegistry()
-        pp = bs.formatter()
-        pp(other_ureg('10 bytes'))
+def test_simple():
+    q = bs.Quantity(1400605)
+    assert int(q) == 1400605
+    assert str(q) == '1.335 MiB'
+    assert repr(q) == '<Quantity 1400605>'
 
-def test_zeros():
+    # gently exercise 0-padding special case in parse_spec
+    assert '{:<0}'.format(q) == '1.335 MiB'
+    assert '{:0}'.format(q) == '1.335 MiB'
+
     pp = bs.formatter()
     assert pp(0) == '0 B'
     assert pp(-0) == '0 B'
 
-def test_hands():
+def test_parsing():
     pp = bs.formatter()
     data = [
         ('-0 B', '0 B'),
@@ -52,9 +54,24 @@ def test_hands():
     for b, result in data:
         yield check_direct, b, result
 
+if bs.ureg:
+    @raises(bs.DifferentRegistryError)
+    def test_different_registry():
+        other_ureg = bs.pint.UnitRegistry()
+        pp = bs.formatter()
+        pp(other_ureg('10 bytes'))
+
 @raises(ValueError)
 def test_format_mt_mutex():
     '{:mt}'.format(bs.Quantity(10000))
+
+@raises(ValueError)
+def test_format_specifier_missing_precision():
+    '{:.}'.format(bs.Quantity(1400605))
+
+@raises(bs.UnitNoExistError)
+def test_way_too_big():
+    print(bs.Quantity(100000000000000000000000000000))
 
 def test_parse_spec():
     def reversible(spec_tuple):
@@ -96,23 +113,6 @@ parse_spec_cases = [
     if not (fill is not None and align is None)
 ]
 
-def test_simple():
-    q = bs.Quantity(1400605)
-    assert int(q) == 1400605
-    assert str(q) == '1.335 MiB'
-    assert repr(q) == '<Quantity 1400605>'
-    # gently exercise 0-padding special case in parse_spec
-    assert '{:<0}'.format(q) == '1.335 MiB'
-    assert '{:0}'.format(q) == '1.335 MiB'
-
-@raises(ValueError)
-def test_format_specifier_missing_precision():
-    '{:.}'.format(bs.Quantity(1400605))
-
-@raises(bs.UnitNoExistError)
-def test_way_too_big():
-    print(bs.Quantity(100000000000000000000000000000))
-
 def mk_formatter(**kwargs):
     _catch = kwargs['_catch']; del kwargs['_catch']
     _short = kwargs['_short']; del kwargs['_short']
@@ -126,6 +126,15 @@ def mk_formatter(**kwargs):
         return maybe_catch(bs.short_formatter(**kwargs))
     else:
         return maybe_catch(bs.formatter(**kwargs))
+
+def catch(f):
+    """Wrap `f` such that exceptions are returned, rather than raised"""
+    def wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except BaseException as exn:
+            return exn
+    return wrapper
 
 def test_hardcases():
     def check_formatter(b, result, fmt):
@@ -184,15 +193,6 @@ def test_hardcases():
             else:
                 yield raises(type(result))(fmt), b
 
-def catch(f):
-    """Wrap `f` such that exceptions are returned, rather than raised"""
-    def wrapper(*args, **kwargs):
-        try:
-            return f(*args, **kwargs)
-        except BaseException as exn:
-            return exn
-    return wrapper
-
 def make_hardcases():
     import pprint
 
@@ -236,7 +236,6 @@ __all__ = ['kwargses', 'hardcases']
             print("    ({}, {!r}),".format(case, results))
 
     print("]")
-
 
 if __name__ == '__main__':
     if sys.argv[1:] == ['make_hardcases']:
