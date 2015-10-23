@@ -129,9 +129,8 @@ __all__ = ['kwargses', 'hardcases']
     print("hardcases = [")
 
     for case in cases:
-        results = tuple(mk_formatter(**kwargs)(case) for kwargs in kwargses)
-        if any(results):
-            print("    ({}, {!r}),".format(case, results))
+        results = tuple(mk_formatter(_catch=True, **kwargs)(case) for kwargs in kwargses)
+        print("    ({}, {!r}),".format(case, results))
 
     print("]")
 
