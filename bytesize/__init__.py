@@ -1,15 +1,17 @@
 from __future__ import (absolute_import, division, print_function, unicode_literals)
 from builtins import *
 
-__all__ = ['formatter', 'short_formatter', 'Quantity']
-
 import os
 import sys
 import math
 import string
 
+__all__ = ['formatter', 'short_formatter', 'Quantity']
+
+
 class UnitNoExistError(RuntimeError):
     pass
+
 
 class DifferentRegistryError(ValueError):
     def __init__(self, *args):
@@ -17,10 +19,12 @@ class DifferentRegistryError(ValueError):
             args = ("Cannot operate between quantities of different registries",)
         super(DifferentRegistryError, self).__init__(*args)
 
+
 class NeedPintForParsingError(RuntimeError):
     def __init__(self, value):
         msg = "Cannot parse {} {!r} as Quantity without Pint installed".format(type(value).__name__, value)
         super(NeedPintForParsingError, self).__init__(msg)
+
 
 UNITS_TABLE = {
     1000: [
@@ -47,22 +51,28 @@ UNITS_TABLE = {
     ],
 }
 
+
 def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     assert base in (1000, 1024)
     assert cutoff in (1000, 1024)
     assert base >= cutoff
     assert digits >= 5
+
     def inner(value):
-        kind, number, units = Quantity(value).humanize(base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
+        kind, number, units = Quantity(value).humanize(
+            base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
         result = Quantity.string_format(kind, number, units)
         return result
     return inner
 
+
 def short_formatter(try_metric=True, tolerance=0.01):
     def inner(value):
-        kind, number, units = Quantity(value).short_humanize(try_metric=try_metric, tolerance=tolerance)
+        kind, number, units = Quantity(value).short_humanize(
+            try_metric=try_metric, tolerance=tolerance)
         return str(number) + units
     return inner
+
 
 class Quantity(object):
     def __init__(self, value):
@@ -220,10 +230,11 @@ class Quantity(object):
             else:
                 return (fill if fill is not None else '') + align
 
+        width_spec = str(string_width) if string_width is not None else ''
         return "{:{fa_spec}{width_spec}}".format(
             "{} {}".format(number, units),
-            fa_spec = fa_spec(),
-            width_spec = str(string_width) if string_width is not None else '')
+            fa_spec=fa_spec(),
+            width_spec=width_spec)
 
     @staticmethod
     def parse_spec(spec):
@@ -252,7 +263,7 @@ class Quantity(object):
 
         fill_char = ' '                        # format->fill_char = ' ';
         fill_char_specified = False            # format->align = default_align;
-        align = '>' # default                  # format->alternate = 0;
+        align = '>'  # default                 # format->alternate = 0;
         align_specified = False                # format->sign = '\0';
         # alternate = 0                        # format->width = -1;
         # sign = ''                            # format->thousands_separators = 0;
@@ -276,7 +287,6 @@ class Quantity(object):
             align_specified = True             #     align_specified = 1;
             pos += 1                           #     ++pos;
                                                # }
-
         ## Parse the various sign options
         ## (not implemented)
         #                                      # if (end-pos >= 1 && is_sign_element(READ_spec(pos))) {
@@ -312,7 +322,6 @@ class Quantity(object):
             width = -1                         #    that the width wasn't specified. */
         else:                                  # if (consumed == 0)
             width = int(spec[pos-consumed:pos])#     format->width = -1;
-
 
         ## Comma signifies add thousands separators
         ## (not implemented)
@@ -377,7 +386,6 @@ class Quantity(object):
                 ('.' + str(precision) if precision is not None else '') +
                 type_)
 
-### GLOBAL SCOPE
 
 try:
     import pint

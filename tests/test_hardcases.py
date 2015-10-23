@@ -12,19 +12,6 @@ import bytesize as bs
 if __name__ != '__main__':
     from data_for_hardcases import *
 
-def mk_formatter(**kwargs):
-    _catch = kwargs['_catch']; del kwargs['_catch']
-    _short = kwargs['_short']; del kwargs['_short']
-
-    if _catch:
-        maybe_catch = catch
-    else:
-        maybe_catch = lambda f: f
-
-    if _short:
-        return maybe_catch(bs.short_formatter(**kwargs))
-    else:
-        return maybe_catch(bs.formatter(**kwargs))
 
 def catch(f):
     """Wrap `f` such that exceptions are returned, rather than raised"""
@@ -34,6 +21,23 @@ def catch(f):
         except BaseException as exn:
             return exn
     return wrapper
+
+
+def mk_formatter(**kwargs):
+    _catch = kwargs['_catch']; del kwargs['_catch']
+    _short = kwargs['_short']; del kwargs['_short']
+
+    if _catch:
+        maybe_catch = catch
+    else:
+        def maybe_catch(f):
+            return f
+
+    if _short:
+        return maybe_catch(bs.short_formatter(**kwargs))
+    else:
+        return maybe_catch(bs.formatter(**kwargs))
+
 
 def test_hardcases():
     def check_formatter(b, result, fmt):
@@ -60,9 +64,11 @@ def test_hardcases():
 
         assert frac_lowerbound <= frac_quot
         assert frac_quot <= frac_upperbound
-        # ^^^ strictly less than unless frac_quot doesn't have precision enough to represent
+        # ^^^ strictly less than, *unless* frac_quot doesn't have precision
+        # enough to represent
         assert len(digits) == places
-        assert ('.' in result) == (rem != 0), "there's a decimal dot iff the value is not exact"
+        assert ('.' in result) == (rem != 0), \
+            "there's a decimal dot iff the value is not exact"
 
     def check_reverse(b, result, kwargs):
         """parse `result` back through pint, check that it's <= to the original,
@@ -76,7 +82,8 @@ def test_hardcases():
 
         pint_bytes = bs.ureg(result).to('bytes').magnitude
         if isinstance(pint_bytes, float):
-            assert lower_bound <= (pint_bytes / b) <= 1, "ureg(`result`) should be <= `b`, but not by too much"
+            assert lower_bound <= (pint_bytes / b) <= 1, \
+                "ureg(`result`) should be <= `b`, but not by too much"
         else:
             assert pint_bytes == b
 
@@ -92,10 +99,11 @@ def test_hardcases():
             else:
                 yield raises(type(result))(fmt), b
 
+
 def generate():
     import pprint
 
-    kwargses = [
+    kwargses = tuple([
         {'_short': False, 'base': base, 'cutoff': cutoff, 'abbrev': abbrev}
         for abbrev in (True, False)
         for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))
@@ -103,7 +111,7 @@ def generate():
         {'_short': True, 'try_metric': try_metric, 'tolerance': tolerance}
         for try_metric in (True, False)
         for tolerance in (0.01,)
-    ]
+    ])
 
     cases = [
         10**dec *

@@ -5,6 +5,7 @@ from nose.tools import raises
 
 import bytesize as bs
 
+
 def test_simple():
     q = bs.Quantity(1400605)
     assert int(q) == 1400605
@@ -18,6 +19,7 @@ def test_simple():
     pp = bs.formatter()
     assert pp(0) == '0 B'
     assert pp(-0) == '0 B'
+
 
 def test_parsing():
     pp = bs.formatter()
@@ -49,6 +51,7 @@ def test_parsing():
     for b, result in data:
         yield check_direct, b, result
 
+
 if bs.ureg:
     @raises(bs.DifferentRegistryError)
     def test_different_registry():
@@ -56,17 +59,21 @@ if bs.ureg:
         pp = bs.formatter()
         pp(other_ureg('10 bytes'))
 
+
 @raises(ValueError)
 def test_format_mt_mutex():
     '{:mt}'.format(bs.Quantity(10000))
+
 
 @raises(ValueError)
 def test_format_specifier_missing_precision():
     '{:.}'.format(bs.Quantity(1400605))
 
+
 @raises(bs.UnitNoExistError)
 def test_way_too_big():
     print(bs.Quantity(100000000000000000000000000000))
+
 
 PARSE_SPEC_CASES = [
     (fill, align, width, precision, type_)
@@ -74,9 +81,10 @@ PARSE_SPEC_CASES = [
     for align in (None, '>', '<', '=', '^')
     for width in (None, 6, 10, 15)
     for precision in (None, 5, 6, 7, 8, 9, 10, 11)
-    for type_ in ('', 't', 'm') #, ' ', '=', '.', '0', '>')
+    for type_ in ('', 't', 'm')
     if not (fill is not None and align is None)
 ]
+
 
 def test_parse_spec():
     def reversible(spec_tuple):

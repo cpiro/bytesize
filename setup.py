@@ -11,7 +11,6 @@ from setuptools import setup, find_packages
 # https://github.com/pypa/pip (pypi badge)
 # https://pypi.python.org/pypi/coverage (lots of badges)
 
-
 setup(
     name = 'bytesize',
     version = '0.1',
@@ -27,5 +26,4 @@ setup(
     license = "GPL",
     keywords = "byte size file data units formatter human pretty",
     url = "https://github.com/cpiro/bytesize",
-    bugtrack_url = "https://github.com/cpiro/bytesize/issues",
 )
