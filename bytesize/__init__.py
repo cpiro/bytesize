@@ -12,6 +12,18 @@ __all__ = ['formatter', 'short_formatter', 'Quantity']
 
 # xxx 'metric' -> 'decimal'
 # xxx 'traditional' -> 'binary' -- use other libs as guidance
+# xxx strategies:
+"""
+    >>> fmt = formatter()
+    >>> "Filename: {} ({})".format('README.md', fmt(2000))
+    xxx
+
+    >>> "Filename: {} ({:.5b})".format('README.md', Quantity(2000))
+
+
+"""
+# xxx example of switching to a particular unit; just use pint
+
 
 if PY2:
     def is_string(ss):
