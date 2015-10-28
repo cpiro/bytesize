@@ -66,9 +66,16 @@ UNITS_TABLE = {
 def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     """Return a function that formats quantities of bytes.
 
+    xxx principles
+
+        >>> fmt = bytesize.formatter()
+        >>> fmt(1400605)
+        '1.335 MiB'
+
     :param base: 1000 to use decimal SI units, or 1024 to use binary IEC units
     :param cutoff: the highest allowable formatted number. Must be either
                    1000 or 1024, and less than or equal to `base`
+    :return: a function from values to strings
 
     """
     assert base in (1000, 1024)
@@ -223,9 +230,14 @@ class Quantity(object):
             return 'trunc', sig, units(True)
 
     def factor(self, base, cutoff):
-        """Solves for (sig, exp, rem) where:
-              sig * base**exp + rem == self.value
-              sig < cutoff
+        """Solves for `(sig, exp, rem)`, where
+
+        :math:`self.value = sig * base^{exp} + rem`
+
+        :math:`sig < cutoff`
+
+        :return: `(sig, exp, rem)`
+
         """
         sig, exp, rem = self.value, 0, 0
         while sig >= cutoff:
