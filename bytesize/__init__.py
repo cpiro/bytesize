@@ -10,6 +10,9 @@ import string
 __all__ = ['formatter', 'short_formatter', 'Quantity']
 
 
+# xxx 'metric' -> 'decimal'
+# xxx 'traditional' -> 'binary' -- use other libs as guidance
+
 if PY2:
     def is_string(ss):
         import __builtin__
@@ -104,12 +107,13 @@ def short_formatter(tolerance=0.01):
         >>> short_formatter(tolerance=None)(2000398934016)
         '1.81Ti'
 
-    :param tolerance float or None: If `tolerance` is a `float`, then when
-                   `value` is less than `tolerance` times more than a whole
-                   number of decimal units, round down to that number and use
-                   decimal units. Otherwise, use binary units.
-                   If `tolerance` is zero, only use decimal units when exact.
-                   If `tolerance` is `None`, always use binary units.
+    :param tolerance: If `tolerance` is a `float`, then when `value` is less
+                      than `tolerance` times more than a whole number of
+                      decimal units, round down to that number and use decimal
+                      units. Otherwise, use binary units.  If `tolerance` is
+                      zero, only use decimal units when exact.  If `tolerance`
+                      is `None`, always use binary units.
+    :type tolerance: float or None
 
     :return: a function from values to strings
 
@@ -122,18 +126,22 @@ def short_formatter(tolerance=0.01):
 
 
 class Quantity(object):
-    """Represents a quantity of bytes, suitable for formatting."""
+    """Represents a quantity of bytes, suitable for formatting.
+
+    :param value: a number of bytes. If `value` is an `int`, this object
+                  represents that number of bytes.  If :mod:`pint` is
+                  available, `value` may also be specified as a
+                  :class:`pint.Quantity` or a `str` to pass to
+                  :class:`pint.Quantity`'s constructor.
+    :type value: int or :class:`pint.Quantity` or str
+    :raises NeedPintForParsingError: if `value` is not an `int` and
+                                     :mod:`pint` is not installed
+    :raises DifferentRegistryError: if `value` is a :class:`pint.Quantity` but
+                                    is not from :mod:`bytesize`'s unit
+                                    registry
+    """
 
     def __init__(self, value):
-        """Interpret `value` as a number of bytes.
-
-        If `value` is an `int`, this object represents that number of
-        bytes.
-
-        If `pint` is available, `value` may also be specified as a `pint`
-        quantity or a `str` parsable by `pint` to a number of bytes.
-
-        """
         if ureg and is_string(value):
             value = ureg(value)
 
@@ -166,7 +174,7 @@ class Quantity(object):
         return result
 
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
-        """returns (kind, number, units)"""
+        # returns (kind, number, units)
         assert base in (1000, 1024)
         assert cutoff in (1000, 1024)
         assert base >= cutoff
@@ -195,6 +203,7 @@ class Quantity(object):
             return 'trunc', number_str, units(True)  # "{} {}".format(number, units)
 
     def short_humanize(self, tolerance=0.01):
+        # returns (kind, number, units)
         cutoff = 1000
 
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
@@ -232,7 +241,7 @@ class Quantity(object):
     def factor(self, base, cutoff):
         """Solves for `(sig, exp, rem)`, where
 
-        :math:`self.value = sig * base^{exp} + rem`
+        :math:`value = sig * base^{exp} + rem`
 
         :math:`sig < cutoff`
 
