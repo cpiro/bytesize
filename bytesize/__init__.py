@@ -10,8 +10,6 @@ import string
 __all__ = ['formatter', 'short_formatter', 'Quantity']
 
 
-# xxx 'metric' -> 'decimal'
-# xxx 'traditional' -> 'binary' -- use other libs as guidance
 # xxx strategies:
 """
     >>> fmt = formatter()
@@ -220,16 +218,22 @@ class Quantity(object):
 
     @staticmethod
     def format_options(fill, align, string_width, precision, type_):
-        metric = 'm' in type_
-        traditional = 't' in type_
-        if metric and traditional:
-            raise ValueError("at most one of 'm' and 't'")
+        type_pref = None
+        for code in type_:
+            if (code == 'd' or  # decimal
+                code == 'i'):   # binary
+                if type_pref:
+                    raise ValueError("at most one of 'd' and 'i'")
+                type_pref = code
+            else:
+                raise ValueError("Unknown format code '{}' for object of type 'bytesize.Quantity'".format(code))
 
+        decimal = type_pref == 'd'
         # "precision" from spec is the width of the number itself (including the dot)
         digits_width = precision if precision is not None and precision > 5 else 5
-        units_width = 2 if metric else 3
-        base = 1000 if metric else 1024
-        cutoff = 1000 if metric or digits_width <= 5 else 1024
+        units_width = 2 if decimal else 3
+        base = 1000 if decimal else 1024
+        cutoff = 1000 if decimal or digits_width <= 5 else 1024
 
         return base, cutoff, digits_width, units_width
 

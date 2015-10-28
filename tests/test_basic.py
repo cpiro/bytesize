@@ -104,8 +104,13 @@ if bs.ureg:
 
 
 @raises(ValueError)
-def test_format_mt_mutex():
-    '{:mt}'.format(bs.Quantity(10000))
+def test_format_unknown_code():
+    '{:z}'.format(bs.Quantity(10000))
+
+
+@raises(ValueError)
+def test_format_mutex_code():
+    '{:di}'.format(bs.Quantity(10000))
 
 
 @raises(ValueError)
@@ -124,7 +129,7 @@ PARSE_SPEC_CASES = [
     for align in (None, '>', '<', '=', '^')
     for width in (None, 6, 10, 15)
     for precision in (None, 5, 6, 7, 8, 9, 10, 11)
-    for type_ in ('', 't', 'm')
+    for type_ in ('', 'i', 'd')
     if not (fill is not None and align is None)
 ]
 
