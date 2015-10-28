@@ -66,65 +66,6 @@ UNITS_TABLE = {
 }
 
 
-def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
-    """Return a function that formats quantities of bytes.
-
-    xxx principles
-
-        >>> fmt = bytesize.formatter()
-        >>> fmt(1400605)
-        '1.335 MiB'
-
-    :param base: 1000 to use decimal SI units, or 1024 to use binary IEC units
-    :param cutoff: the highest allowable formatted number. Must be either
-                   1000 or 1024, and less than or equal to `base`
-    :return: a function from values to strings
-
-    """
-    assert base in (1000, 1024)
-    assert cutoff in (1000, 1024)
-    assert base >= cutoff
-    assert digits >= 5
-
-    def inner(value):
-        kind, number, units = Quantity(value).humanize(
-            base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
-        result = Quantity.string_format(kind, number, units)
-        return result
-    return inner
-
-
-def short_formatter(tolerance=0.01):
-    """Return a function that formats quantities of bytes.
-
-    xxx principles
-
-        >>> fmt = short_formatter()
-        >>> fmt(1400605)
-        '1.17Mi'
-        >>> fmt(2000398934016)
-        '2T'
-        >>> short_formatter(tolerance=None)(2000398934016)
-        '1.81Ti'
-
-    :param tolerance: If `tolerance` is a `float`, then when `value` is less
-                      than `tolerance` times more than a whole number of
-                      decimal units, round down to that number and use decimal
-                      units. Otherwise, use binary units.  If `tolerance` is
-                      zero, only use decimal units when exact.  If `tolerance`
-                      is `None`, always use binary units.
-    :type tolerance: float or None
-
-    :return: a function from values to strings
-
-    """
-    assert tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)
-    def inner(value):
-        kind, number, units = Quantity(value).short_humanize(tolerance=tolerance)
-        return str(number) + units
-    return inner
-
-
 class Quantity(object):
     """Represents a quantity of bytes, suitable for formatting.
 
@@ -455,6 +396,65 @@ class Quantity(object):
                 (str(width) if width is not None else '') +
                 ('.' + str(precision) if precision is not None else '') +
                 type_)
+
+
+def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
+    """Return a function that formats quantities of bytes.
+
+    xxx principles
+
+        >>> fmt = bytesize.formatter()
+        >>> fmt(1400605)
+        '1.335 MiB'
+
+    :param base: 1000 to use decimal SI units, or 1024 to use binary IEC units
+    :param cutoff: the highest allowable formatted number. Must be either
+                   1000 or 1024, and less than or equal to `base`
+    :return: a function from values to strings
+
+    """
+    assert base in (1000, 1024)
+    assert cutoff in (1000, 1024)
+    assert base >= cutoff
+    assert digits >= 5
+
+    def inner(value):
+        kind, number, units = Quantity(value).humanize(
+            base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
+        result = Quantity.string_format(kind, number, units)
+        return result
+    return inner
+
+
+def short_formatter(tolerance=0.01):
+    """Return a function that formats quantities of bytes.
+
+    xxx principles
+
+        >>> fmt = short_formatter()
+        >>> fmt(1400605)
+        '1.17Mi'
+        >>> fmt(2000398934016)
+        '2T'
+        >>> short_formatter(tolerance=None)(2000398934016)
+        '1.81Ti'
+
+    :param tolerance: If `tolerance` is a `float`, then when `value` is less
+                      than `tolerance` times more than a whole number of
+                      decimal units, round down to that number and use decimal
+                      units. Otherwise, use binary units.  If `tolerance` is
+                      zero, only use decimal units when exact.  If `tolerance`
+                      is `None`, always use binary units.
+    :type tolerance: float or None
+
+    :return: a function from values to strings
+
+    """
+    assert tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)
+    def inner(value):
+        kind, number, units = Quantity(value).short_humanize(tolerance=tolerance)
+        return str(number) + units
+    return inner
 
 
 try:
