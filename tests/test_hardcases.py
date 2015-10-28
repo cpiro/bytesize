@@ -69,7 +69,7 @@ def test_hardcases():
         """
         if kwargs['_short']:
             result += 'B'
-            lower_bound = 1.0 - kwargs['tolerance']
+            lower_bound = 1.0 - (kwargs['tolerance'] or 0.01)
         else:
             lower_bound = 0.999
 
@@ -101,9 +101,8 @@ def generate():
         for abbrev in (True, False)
         for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))
     ) + tuple(
-        {'_short': True, 'try_metric': try_metric, 'tolerance': tolerance}
-        for try_metric in (True, False)
-        for tolerance in (0.01,)
+        {'_short': True, 'tolerance': tolerance}
+        for tolerance in (0.01, None)
     )
 
     cases = [

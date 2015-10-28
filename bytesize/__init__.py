@@ -84,10 +84,32 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     return inner
 
 
-def short_formatter(try_metric=True, tolerance=0.01):
+def short_formatter(tolerance=0.01):
+    """Return a function that formats quantities of bytes.
+
+    xxx principles
+
+        >>> fmt = short_formatter()
+        >>> fmt(1400605)
+        '1.17Mi'
+        >>> fmt(2000398934016)
+        '2T'
+        >>> short_formatter(tolerance=None)(2000398934016)
+        '1.81Ti'
+
+    :param tolerance float or None: If `tolerance` is a `float`, then when
+                   `value` is less than `tolerance` times more than a whole
+                   number of decimal units, round down to that number and use
+                   decimal units. Otherwise, use binary units.
+                   If `tolerance` is zero, only use decimal units when exact.
+                   If `tolerance` is `None`, always use binary units.
+
+    :return: a function from values to strings
+
+    """
+    assert tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)
     def inner(value):
-        kind, number, units = Quantity(value).short_humanize(
-            try_metric=try_metric, tolerance=tolerance)
+        kind, number, units = Quantity(value).short_humanize(tolerance=tolerance)
         return str(number) + units
     return inner
 
@@ -165,16 +187,16 @@ class Quantity(object):
 
             return 'trunc', number_str, units(True)  # "{} {}".format(number, units)
 
-    def short_humanize(self, try_metric=True, tolerance=0.01):
+    def short_humanize(self, tolerance=0.01):
         cutoff = 1000
 
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
         # (like HDD capacities), round down and call it 'exact'. otherwise use
         # base 1024
         base = None
-        if try_metric:
+        if tolerance is not None:
             sig10, exp10, rem10 = self.factor(base=1000, cutoff=cutoff)
-            if rem10 < tolerance * (1000**exp10):
+            if rem10 <= tolerance * (1000**exp10):
                 base = 1000
                 sig, exp, rem = sig10, exp10, 0
 
