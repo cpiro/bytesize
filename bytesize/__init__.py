@@ -124,6 +124,19 @@ class Quantity(object):
         result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
         return result
 
+    def factor_guess_base(self, tolerance):
+        # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
+        # (like HDD capacities), round down and call it 'exact'. otherwise use
+        # base 1024
+
+        if tolerance is not None:
+            sig10, exp10, rem10 = self.factor(base=1000, cutoff=1000)
+            if rem10 <= tolerance * (1000**exp10):
+                return 1000, sig10, exp10, 0
+
+        sig2, exp2, rem2 = self.factor(base=1024, cutoff=1000)
+        return 1024, sig2, exp2, rem2
+
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         # returns (kind, number, units)
         assert base in (1000, 1024)
@@ -155,21 +168,7 @@ class Quantity(object):
 
     def short_humanize(self, tolerance=0.01):
         # returns (kind, number, units)
-        cutoff = 1000
-
-        # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
-        # (like HDD capacities), round down and call it 'exact'. otherwise use
-        # base 1024
-        base = None
-        if tolerance is not None:
-            sig10, exp10, rem10 = self.factor(base=1000, cutoff=cutoff)
-            if rem10 <= tolerance * (1000**exp10):
-                base = 1000
-                sig, exp, rem = sig10, exp10, 0
-
-        if base is None:
-            base = 1024
-            sig, exp, rem = self.factor(base=1024, cutoff=cutoff)
+        base, sig, exp, rem = self.factor_guess_base(tolerance)
 
         def units(plural):
             try:
