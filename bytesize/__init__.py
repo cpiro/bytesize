@@ -87,10 +87,8 @@ class Quantity(object):
             value = _ureg(value)
 
         if _ureg and isinstance(value, pint.quantity._Quantity):
-            if value._REGISTRY is not _ureg:
-                value = _ureg(str(value.to('byte')))
             assert value.magnitude >= 0
-            bytes_f = value.to(_ureg.byte).magnitude
+            bytes_f = value.to('byte').magnitude
             assert isinstance(bytes_f, int) or bytes_f.is_integer()
             self.value = int(bytes_f)
         elif isinstance(value, int):
