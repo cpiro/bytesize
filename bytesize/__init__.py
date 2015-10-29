@@ -80,13 +80,13 @@ class Quantity(object):
     """Represents a quantity of bytes, suitable for formatting.
 
     :param value: a number of bytes. If `value` is an `int`, this object
-                  represents that number of bytes.  If :mod:`pint` is
+                  represents that number of bytes.  If pint_ is
                   available, `value` may also be specified as a
                   :class:`pint.Quantity` or a `str` to pass to
                   :class:`pint.Quantity`'s constructor.
     :type value: int or :class:`pint.Quantity` or str
     :raises NeedPintForParsingError: if `value` is not an `int` and
-                                     :mod:`pint` is not installed
+                                     pint_ is not installed
     :raises DifferentRegistryError: if `value` is a :class:`pint.Quantity` but
                                     is not from :mod:`bytesize`'s unit
                                     registry
