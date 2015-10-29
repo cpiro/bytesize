@@ -10,18 +10,6 @@ import string
 __all__ = ['Quantity', 'formatter', 'short_formatter']
 
 # xxx licensing
-# xxx strategies:
-"""
-    >>> fmt = formatter()
-    >>> "Filename: {} ({})".format('README.md', fmt(2000))
-    xxx
-
-    >>> "Filename: {} ({:.5b})".format('README.md', Quantity(2000))
-
-
-"""
-# xxx example of switching to a particular unit. we don't support that; just use pint
-
 
 if PY2:
     def is_string(ss):

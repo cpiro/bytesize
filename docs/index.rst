@@ -6,6 +6,32 @@
 Overview
 ========
 
+Features
+========
+
+>>> fmt = formatter()
+>>> "Filename: {} ({})".format('README.md', fmt(2000))
+xxx
+
+>>> "Filename: {} ({:.5b})".format('README.md', Quantity(2000))
+
+If pint_ is installed, we support parsing strings like ``'100 megabytes'`` or
+``'25 GiB'``. We also support values of :class:`pint.Quantity`, so long as
+they convert to a whole number of ``'bytes'``.
+
+.. xxx example of switching to a particular unit. we don't support that; just use pint
+
+Installation
+============
+
+>>> pip install bytesize
+
+Contribute
+==========
+
+- Source code: https://github.com/cpiro/bytesize
+- Issues: https://github.com/cpiro/bytesize/issues
+
 Contents
 ========
 
@@ -23,3 +49,4 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
+.. _`pint`: http://pint.readthedocs.org/
