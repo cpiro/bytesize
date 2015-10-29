@@ -9,7 +9,7 @@ import string
 
 __all__ = ['Quantity', 'formatter', 'short_formatter']
 
-
+# xxx licensing
 # xxx strategies:
 """
     >>> fmt = formatter()
