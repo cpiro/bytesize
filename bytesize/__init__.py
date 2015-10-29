@@ -119,7 +119,7 @@ class Quantity(object):
 
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
-        base, cutoff, digits_width, units_width = Quantity.format_options(fill, align, string_width, precision, type_)
+        base, cutoff, digits_width, units_width = self.format_options(fill, align, string_width, precision, type_)
         kind, number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width)
         result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
         return result
@@ -215,24 +215,30 @@ class Quantity(object):
             digits += '%0d' % (digit,)
         return digits
 
-    @staticmethod
-    def format_options(fill, align, string_width, precision, type_):
+    def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
         for code in type_:
             if (code == 'd' or  # decimal
-                code == 'i'):   # binary
+                code == 'i' or  # binary
+                code == 'a'):   # automatic
                 if type_pref:
-                    raise ValueError("at most one of 'd' and 'i'")
+                    raise ValueError("Format code must be at most one of 'a', 'd', or 'i'")
                 type_pref = code
             else:
                 raise ValueError("Unknown format code '{}' for object of type 'bytesize.Quantity'".format(code))
 
-        decimal = type_pref == 'd'
+        if type_pref == 'i' or type_pref is None:
+            base = 1024
+        elif type_pref == 'd':
+            base = 1000
+        elif type_pref == 'a':
+            base, _, _, _ = self.factor_guess_base(tolerance=0)
+
+        binary = base == 1024
         # "precision" from spec is the width of the number itself (including the dot)
         digits_width = precision if precision is not None and precision > 5 else 5
-        units_width = 2 if decimal else 3
-        base = 1000 if decimal else 1024
-        cutoff = 1000 if decimal or digits_width <= 5 else 1024
+        units_width = 3 if binary else 2
+        cutoff = 1024 if binary and digits_width > 5 else 1000
 
         return base, cutoff, digits_width, units_width
 

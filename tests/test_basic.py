@@ -55,6 +55,48 @@ def test_parsing():
     for b, result in data:
         yield check_direct, b, result
 
+def test_format_type():
+    data = [
+        ('', 1, '1 B'),
+        ('', 999, '999 B'),
+        ('', 1000, '0.976 KiB'),
+        ('', 1001, '0.977 KiB'),
+        ('', 1000000, '976.5 KiB'),
+        ('', 1000001, '976.5 KiB'),
+        ('', 1048576, '1 MiB'),
+        ('', 1048577, '1.000 MiB'),
+        ('a', 1, '1 B'),
+        ('a', 999, '999 B'),
+        ('a', 1000, '1 kB'),
+        ('a', 1001, '0.977 KiB'),
+        ('a', 1000000, '1 MB'),
+        ('a', 1000001, '976.5 KiB'),
+        ('a', 1048576, '1 MiB'),
+        ('a', 1048577, '1.000 MiB'),
+        ('d', 1, '1 B'),
+        ('d', 999, '999 B'),
+        ('d', 1000, '1 kB'),
+        ('d', 1001, '1.001 kB'),
+        ('d', 1000000, '1 MB'),
+        ('d', 1000001, '1.000 MB'),
+        ('d', 1048576, '1.048 MB'),
+        ('d', 1048577, '1.048 MB'),
+        ('i', 1, '1 B'),
+        ('i', 999, '999 B'),
+        ('i', 1000, '0.976 KiB'),
+        ('i', 1001, '0.977 KiB'),
+        ('i', 1000000, '976.5 KiB'),
+        ('i', 1000001, '976.5 KiB'),
+        ('i', 1048576, '1 MiB'),
+        ('i', 1048577, '1.000 MiB'),
+    ]
+    def check(spec, value, result):
+        fmt_str = '{{:{}}}'.format(spec)
+        assert fmt_str.format(bs.Quantity(value)) == result
+
+    for spec, value, result in data:
+        yield check, spec, value, result
+
 def test_short_tolerance():
     data = [
         (0, 1999999999999, '1.81Ti'),
@@ -129,7 +171,7 @@ PARSE_SPEC_CASES = [
     for align in (None, '>', '<', '=', '^')
     for width in (None, 6, 10, 15)
     for precision in (None, 5, 6, 7, 8, 9, 10, 11)
-    for type_ in ('', 'i', 'd')
+    for type_ in ('', 'i', 'd', 'a')
     if not (fill is not None and align is None)
 ]
 
