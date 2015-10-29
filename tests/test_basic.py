@@ -162,6 +162,7 @@ def test_short_tolerance():
     for tolerance, value, result in data:
         yield check, tolerance, value, result
 
+
 @raises(AssertionError)
 def test_short_tolerance_error():
     bs.short_formatter(tolerance=9000)
@@ -169,12 +170,18 @@ def test_short_tolerance_error():
     bs.short_formatter(tolerance=-0.1)
     bs.short_formatter(tolerance=-9000)
 
+
 if bs.ureg:
-    @raises(bs.DifferentRegistryError)
-    def test_different_registry():
+    def test_other_registry():
         other_ureg = bs.pint.UnitRegistry()
-        pp = bs.formatter()
-        pp(other_ureg('10 bytes'))
+        q = other_ureg('800 kilobits/sec') * other_ureg('5 days')
+        assert bs.formatter()(q) == '40.23 GiB'
+
+    @raises(bs.pint.unit.DimensionalityError)
+    def test_dimensionality_error():
+        other_ureg = bs.pint.UnitRegistry()
+        q = other_ureg("20080313 seconds per square gram")
+        bs.formatter()(q)
 
 
 @raises(ValueError)

@@ -37,13 +37,6 @@ class UnitNoExistError(RuntimeError):
     pass
 
 
-class DifferentRegistryError(ValueError):
-    def __init__(self, *args):
-        if args is ():
-            args = ("Cannot operate between quantities of different registries",)
-        super(DifferentRegistryError, self).__init__(*args)
-
-
 class NeedPintForParsingError(RuntimeError):
     def __init__(self, value):
         msg = "Cannot parse {} {!r} as Quantity without Pint installed".format(type(value).__name__, value)
@@ -87,9 +80,6 @@ class Quantity(object):
     :type value: int or :class:`pint.Quantity` or str
     :raises NeedPintForParsingError: if `value` is not an `int` and
                                      pint_ is not installed
-    :raises DifferentRegistryError: if `value` is a :class:`pint.Quantity` but
-                                    is not from :mod:`bytesize`'s unit
-                                    registry
     """
 
     def __init__(self, value):
@@ -98,7 +88,7 @@ class Quantity(object):
 
         if ureg and isinstance(value, pint.quantity._Quantity):
             if value._REGISTRY is not ureg:
-                raise DifferentRegistryError()
+                value = ureg(str(value.to('byte')))
             assert value.magnitude >= 0
             bytes_f = value.to(ureg.byte).magnitude
             assert isinstance(bytes_f, int) or bytes_f.is_integer()
