@@ -43,10 +43,10 @@ def test_parsing():
         (u'1400605 B', '1.335 MiB'),
     ]
 
-    if bs.ureg:
+    if bs._ureg:
         def check_direct(b, result):
             assert pp(b) == result
-            assert pp(bs.ureg(b)) == result
+            assert pp(bs._ureg(b)) == result
     else:
         @raises(bs.NeedPintForParsingError)
         def check_direct(b, result):
@@ -171,7 +171,7 @@ def test_short_tolerance_error():
     bs.short_formatter(tolerance=-9000)
 
 
-if bs.ureg:
+if bs._ureg:
     def test_other_registry():
         other_ureg = bs.pint.UnitRegistry()
         q = other_ureg('800 kilobits/sec') * other_ureg('5 days')

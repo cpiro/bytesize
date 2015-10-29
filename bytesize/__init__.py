@@ -83,14 +83,14 @@ class Quantity(object):
     """
 
     def __init__(self, value):
-        if ureg and is_string(value):
-            value = ureg(value)
+        if _ureg and is_string(value):
+            value = _ureg(value)
 
-        if ureg and isinstance(value, pint.quantity._Quantity):
-            if value._REGISTRY is not ureg:
-                value = ureg(str(value.to('byte')))
+        if _ureg and isinstance(value, pint.quantity._Quantity):
+            if value._REGISTRY is not _ureg:
+                value = _ureg(str(value.to('byte')))
             assert value.magnitude >= 0
-            bytes_f = value.to(ureg.byte).magnitude
+            bytes_f = value.to(_ureg.byte).magnitude
             assert isinstance(bytes_f, int) or bytes_f.is_integer()
             self.value = int(bytes_f)
         elif isinstance(value, int):
@@ -467,14 +467,34 @@ def short_formatter(tolerance=0.01):
     return inner
 
 
+_ureg = None
+"""This module's unique unit registry.
+
+When pint_ is available, `bytesize` defines a unit registry containing only
+the units ``bit = b`` and ``byte = B``. It can parse human-readable `str`s
+into :class:`pint.Quantity` values. See the pint_ documentation for more
+information.
+
+For your convenience, :class:`bytesize.Quantity` will use `_ureg` implicitly
+to parse `str` values when pint_ is installed, so you probably don't need to
+use this directly.
+
+>>> _ureg('10000 B')
+<pint.Quantity(10000, 'byte')>
+>>> _ureg('200 MiB') + _ureg('600 MiB')
+<Quantity(800, 'mebibyte')>
+>>> '{:ld}'.format(Quantity('500000 bytes'))
+'500 kilobytes'
+"""
+
 try:
     import pint
-    ureg = pint.UnitRegistry('/dev/null')
-    ureg.define("bit = [data] = b")
-    ureg.define("byte = 8 bit = B")
+    _ureg = pint.UnitRegistry('/dev/null')
+    _ureg.define("bit = [data] = b")
+    _ureg.define("byte = 8 bit = B")
     for base, subtable in UNITS_TABLE.items():
         for exp, (abbrev, prefix) in enumerate(subtable):
             if exp != 0:
-                ureg.define('{}- = {}**{} = {}-'.format(prefix, base, exp, abbrev))
+                _ureg.define('{}- = {}**{} = {}-'.format(prefix, base, exp, abbrev))
 except ImportError:
-    ureg = None
+    pass

@@ -73,10 +73,10 @@ def test_hardcases():
         else:
             lower_bound = 0.999
 
-        pint_bytes = bs.ureg(result).to('bytes').magnitude
+        pint_bytes = bs._ureg(result).to('bytes').magnitude
         if isinstance(pint_bytes, float):
             assert lower_bound <= (pint_bytes / b) <= 1, \
-                "ureg(`result`) should be <= `b`, but not by too much"
+                "_ureg(`result`) should be <= `b`, but not by too much"
         else:
             assert pint_bytes == b
 
@@ -87,7 +87,7 @@ def test_hardcases():
                 yield check_formatter, b, result, fmt
                 if not kwargs['_short']:
                     yield check_long_guts, b, result, kwargs
-                if bs.ureg:
+                if bs._ureg:
                     yield check_reverse, b, result, kwargs
             else:
                 yield raises(type(result))(fmt), b
