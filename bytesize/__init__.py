@@ -20,7 +20,7 @@ __all__ = ['Quantity', 'formatter', 'short_formatter']
 
 
 """
-# xxx example of switching to a particular unit; just use pint
+# xxx example of switching to a particular unit. we don't support that; just use pint
 
 
 if PY2:
