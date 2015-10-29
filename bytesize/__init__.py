@@ -119,8 +119,8 @@ class Quantity(object):
 
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
-        base, cutoff, digits_width, units_width = self.format_options(fill, align, string_width, precision, type_)
-        kind, number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width)
+        base, cutoff, digits_width, units_width, abbrev = self.format_options(fill, align, string_width, precision, type_)
+        kind, number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
         result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
         return result
 
@@ -217,6 +217,7 @@ class Quantity(object):
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
+        abbrev = True
         for code in type_:
             if (code == 'd' or  # decimal
                 code == 'i' or  # binary
@@ -224,6 +225,8 @@ class Quantity(object):
                 if type_pref:
                     raise ValueError("Format code must be at most one of 'a', 'd', or 'i'")
                 type_pref = code
+            elif code == 'l':
+                abbrev = False
             else:
                 raise ValueError("Unknown format code '{}' for object of type 'bytesize.Quantity'".format(code))
 
@@ -237,10 +240,14 @@ class Quantity(object):
         binary = base == 1024
         # "precision" from spec is the width of the number itself (including the dot)
         digits_width = precision if precision is not None and precision > 5 else 5
-        units_width = 3 if binary else 2
+        if abbrev:
+            units_width = len('YiB') if binary else len('YB')
+        else:
+            units_width = len('yobibytes') if binary else len('yottabytes')
+
         cutoff = 1024 if binary and digits_width > 5 else 1000
 
-        return base, cutoff, digits_width, units_width
+        return base, cutoff, digits_width, units_width, abbrev
 
     @staticmethod
     def string_format(kind, number, units, fill=None, align=None, string_width=None, units_width=None):
@@ -273,12 +280,12 @@ class Quantity(object):
         # minimum precision is 5
         # width should be at least 9 (for precision of 5) to avoid overflowing
 
-        # format_spec ::=  [[fill]align][width][.precision][type+]
+        # format_spec ::=  [[fill]align][width][.precision][type]
         # fill        ::=  <any character>
         # align       ::=  "<" | ">" | "=" | "^"
         # width       ::=  integer
         # precision   ::=  integer
-        # type        ::=  xxx
+        # type        ::=  "i" | "d" | "a" | "l"
 
         # static int
         # parse_internal_render_format_spec(PyObject *format_spec,
