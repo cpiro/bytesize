@@ -7,7 +7,7 @@ import sys
 import math
 import string
 
-__all__ = ['formatter', 'short_formatter', 'Quantity']
+__all__ = ['Quantity', 'formatter', 'short_formatter']
 
 
 # xxx strategies:
@@ -277,15 +277,7 @@ class Quantity(object):
 
     @staticmethod
     def parse_spec(spec):
-        # minimum precision is 5
-        # width should be at least 9 (for precision of 5) to avoid overflowing
-
-        # format_spec ::=  [[fill]align][width][.precision][type]
-        # fill        ::=  <any character>
-        # align       ::=  "<" | ">" | "=" | "^"
-        # width       ::=  integer
-        # precision   ::=  integer
-        # type        ::=  "i" | "d" | "a" | "l"
+        # see formatting.rst
 
         # static int
         # parse_internal_render_format_spec(PyObject *format_spec,
