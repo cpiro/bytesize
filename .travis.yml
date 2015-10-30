@@ -1,12 +1,12 @@
 language: python
 python:
-  - "pypy"
-  - "pypy3"
+#  - "pypy"
+#  - "pypy3"
   - "2.7"
   - "3.4"
   - "3.5"
-  - "3.5-dev"
-  - "nightly"
+#  - "3.5-dev"
+#  - "nightly"
 env:
   - EXTRAS=""
   - EXTRAS="[pint]"
@@ -16,7 +16,13 @@ install:
   - pip install -e ".${EXTRAS}"
 script:
   - nosetests --with-coverage --cover-package=bytesize
-  - (cd docs && make doctest)
-  - (cd docs && make html)
+  - (if [[ "$SPHINX" = true ]]; then cd docs && make doctest; else true; fi)
+  - (if [[ "$SPHINX" = true ]]; then cd docs && make html; else true; fi)
 after_success:
   - coveralls
+matrix:
+  include:
+    - python: "2.7"
+      env: SPHINX=true
+    - python: "3.4"
+      env: SPHINX=true
