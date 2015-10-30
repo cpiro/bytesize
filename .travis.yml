@@ -7,23 +7,18 @@ python:
 #  - nightly
 #  - pypy
 #  - pypy3
-
 env:
   matrix:
     - SUITE=test EXTRAS=""
     - SUITE=test EXTRAS="[pint]"
-
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
   - pip install -e ".${EXTRAS}"
-
 script:
   - make "$SUITE"
-
 after_success:
   - coveralls
-
 matrix:
   include:
     - python: 3.5
