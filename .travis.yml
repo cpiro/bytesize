@@ -1,15 +1,18 @@
 language: python
 python:
-#  - "pypy"
-#  - "pypy3"
-  - "2.7"
-  - "3.4"
-  - "3.5"
-#  - "3.5-dev"
-#  - "nightly"
+  - 2.7
+  - 3.4
+  - 3.5
+#  - 3.5-dev
+#  - nightly
+#  - pypy
+#  - pypy3
 env:
-  - EXTRAS=""
-  - EXTRAS="[pint]"
+  global:
+    - SPHINX=false
+  matrix:
+    - EXTRAS=""
+    - EXTRAS="[pint]"
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
