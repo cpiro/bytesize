@@ -7,25 +7,28 @@ python:
 #  - nightly
 #  - pypy
 #  - pypy3
+
 env:
-  global:
-    - SPHINX=false
   matrix:
-    - EXTRAS=""
-    - EXTRAS="[pint]"
+    - SUITE=test EXTRAS=""
+    - SUITE=test EXTRAS="[pint]"
+    - SUITE=html EXTRAS="[pint]"
+    - SUITE=doctest EXTRAS="[pint]"
+
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
   - pip install -e ".${EXTRAS}"
+
 script:
-  - nosetests --with-coverage --cover-package=bytesize
-  - (if [[ "$SPHINX" = true ]]; then cd docs && make doctest; else true; fi)
-  - (if [[ "$SPHINX" = true ]]; then cd docs && make html; else true; fi)
+  - make "$SUITE"
+
 after_success:
   - coveralls
+
 matrix:
-  include:
-    - python: "2.7"
-      env: SPHINX=true
-    - python: "3.4"
-      env: SPHINX=true
+  exclude:
+    - python: 2.7
+      env: SUITE=html EXTRAS="[pint]"
+    - python: 2.7
+      env: SUITE=doctest EXTRAS="[pint]"
