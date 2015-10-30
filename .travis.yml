@@ -8,12 +8,12 @@ python:
   - "3.5-dev"
   - "nightly"
 env:
-  - REQ="."
-  - REQ=".[pint]"
+  - EXTRAS=""
+  - EXTRAS="[pint]"
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
-  - pip install -e "$REQ"
+  - pip install -e ".${EXTRAS}"
 script:
   - nosetests --with-coverage --cover-package=bytesize
 after_success:
