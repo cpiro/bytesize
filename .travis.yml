@@ -16,5 +16,7 @@ install:
   - pip install -e ".${EXTRAS}"
 script:
   - nosetests --with-coverage --cover-package=bytesize
+  - cd docs && make doctest
+  - cd docs && make html
 after_success:
   - coveralls

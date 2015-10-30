@@ -399,9 +399,9 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
 
     xxx principles
 
-        >>> fmt = bytesize.formatter()
-        >>> fmt(1400605)
-        '1.335 MiB'
+    >>> fmt = formatter()
+    >>> fmt(1400605)
+    '1.335 MiB'
 
     :param base: 1000 to use decimal SI units, or 1024 to use binary IEC units
     :param cutoff: the highest allowable formatted number. Must be either
@@ -427,13 +427,13 @@ def short_formatter(tolerance=0.01):
 
     xxx principles
 
-        >>> fmt = short_formatter()
-        >>> fmt(1400605)
-        '1.17Mi'
-        >>> fmt(2000398934016)
-        '2T'
-        >>> short_formatter(tolerance=None)(2000398934016)
-        '1.81Ti'
+    >>> fmt = short_formatter()
+    >>> fmt(1400605)
+    '1.33Mi'
+    >>> fmt(2000398934016)
+    '2T'
+    >>> short_formatter(tolerance=None)(2000398934016)
+    '1.81Ti'
 
     :param tolerance: If `tolerance` is a `float`, then when `value` is less
                       than `tolerance` times more than a whole number of

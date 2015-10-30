@@ -3,17 +3,24 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. testsetup::
+
+    import bytesize
+
 Overview
 ========
+Generate human-readable strings for quantities of bytes!
 
-Features
-========
+>>> import bytesize
+>>> fmt = bytesize.formatter()
+>>> fmt(1400605)
+'1.335 MiB'
 
->>> fmt = formatter()
->>> "Filename: {} ({})".format('README.md', fmt(2000))
-xxx
+..
+    >>> "Filename: {} ({})".format('README.md', fmt(2000))
+    xxx
 
->>> "Filename: {} ({:.5b})".format('README.md', Quantity(2000))
+    >>> "Filename: {} ({:.5b})".format('README.md', Quantity(2000))
 
 If pint_ is installed, we support parsing strings like ``'100 megabytes'`` or
 ``'25 GiB'``. We also support values of :class:`pint.Quantity`, so long as
@@ -21,10 +28,13 @@ they convert to a whole number of ``'bytes'``.
 
 .. xxx example of switching to a particular unit. we don't support that; just use pint
 
+Features
+========
+
 Installation
 ============
 
->>> pip install bytesize
+>>> pip install bytesize  # doctest: +SKIP
 
 Contribute
 ==========

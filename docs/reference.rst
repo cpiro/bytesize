@@ -2,6 +2,12 @@
 Reference
 =========
 
+.. testsetup::
+
+   import bytesize
+   from bytesize import *
+   from bytesize import _ureg
+
 .. automodule:: bytesize
    :members:
 
