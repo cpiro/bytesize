@@ -12,8 +12,6 @@ env:
   matrix:
     - SUITE=test EXTRAS=""
     - SUITE=test EXTRAS="[pint]"
-    - SUITE=html EXTRAS="[pint]"
-    - SUITE=doctest EXTRAS="[pint]"
 
 install:
   - pip install -r requirements.txt
@@ -27,8 +25,8 @@ after_success:
   - coveralls
 
 matrix:
-  exclude:
-    - python: 2.7
+  include:
+    - python: 3.5
       env: SUITE=html EXTRAS="[pint]"
-    - python: 2.7
+    - python: 3.5
       env: SUITE=doctest EXTRAS="[pint]"
