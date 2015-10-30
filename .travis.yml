@@ -8,13 +8,12 @@ python:
   - "3.5-dev"
   - "nightly"
 env:
-  - WITH_PINT=true
-  - WITH_PINT=false
+  - REQ="bytesize"
+  - REQ="bytesize[pint]"
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
-  - pip install -e .
-  - "[[ \"$WITH_PINT\" = true ]] && pip install pint || true"
+  - pip install -e . "$REQ"
 script:
   - nosetests --with-coverage --cover-package=bytesize
 after_success:
