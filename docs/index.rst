@@ -12,15 +12,13 @@ Overview
 Generate human-readable strings for quantities of bytes!
 
 >>> import bytesize
+>>> size = bytesize.Quantity('2 terabytes')
+>>> "Device: {} ({})".format('sda', size)
+'Device: sda (1.818 TiB)'
+
 >>> fmt = bytesize.formatter()
 >>> fmt(1400605)
 '1.335 MiB'
-
-..
-    >>> "Filename: {} ({})".format('README.md', fmt(2000))
-    xxx
-
-    >>> "Filename: {} ({:.5b})".format('README.md', Quantity(2000))
 
 If pint_ is installed, we support parsing strings like ``'100 megabytes'`` or
 ``'25 GiB'``. We also support values of :class:`pint.Quantity`, so long as
