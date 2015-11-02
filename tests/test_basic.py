@@ -44,10 +44,15 @@ def test_arithmetic():
     assert type(1 * Q(1)) == Q
     assert type(Q(1) * Q(1)) == Q
 
-    assert type(1 / 1) == float
+    assert type(1 / 1) == int if PY2 else float
     assert type(Q(1) / 1) == Q
     assert type(1 / Q(1)) == Q
     assert type(Q(1) / Q(1)) == Q
+
+    assert type(1 // 1) == int
+    assert type(Q(1) // 1) == Q
+    assert type(1 // Q(1)) == Q
+    assert type(Q(1) // Q(1)) == Q
 
 
 def test_relations():
