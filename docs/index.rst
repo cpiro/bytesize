@@ -3,10 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. testsetup::
-
-    import bytesize
-
 Overview
 ========
 Generate human-readable strings for quantities of bytes!
@@ -28,6 +24,20 @@ they convert to a whole number of ``'bytes'``.
 
 Features
 ========
+
+- Python 2.7+/3.4+
+- guess units
+- Obsessive: always binary/decimal properly
+- exacts (no .s)
+- cutoff (configable)
+
+>>> from bytesize import Quantity as Q
+>>> str(Q(1000 * 1024**7 - 1))
+'999.9 ZiB'
+>>> str(Q(1000 * 1024**7))
+'1000 ZiB'
+>>> str(Q(1000 * 1024**7 + 1))
+'0.976 YiB'
 
 Installation
 ============
