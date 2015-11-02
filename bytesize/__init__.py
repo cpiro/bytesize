@@ -55,7 +55,7 @@ UNITS_TABLE = {
 }
 
 
-class Quantity(object):
+class Quantity(int):
     """Represents a quantity of bytes, suitable for formatting.
 
     :param value: a number of bytes. If `value` is an `int`, this object
@@ -68,7 +68,7 @@ class Quantity(object):
                                      pint_ is not installed
     """
 
-    def __init__(self, value):
+    def __new__(cls, value):
         if _ureg and is_string(value):
             value = _ureg(value)
 
@@ -76,20 +76,22 @@ class Quantity(object):
             assert value.magnitude >= 0
             bytes_f = value.to('byte').magnitude
             assert isinstance(bytes_f, int) or bytes_f.is_integer()
-            self.value = int(bytes_f)
+            value = int(bytes_f)
         elif isinstance(value, int):
-            self.value = value
+            pass
         else:
             raise NeedPintForParsingError(value)
 
+        return super(Quantity, cls).__new__(cls, value)
+
     def __int__(self):
-        return self.value
+        return int.__int__(self)
 
     def __str__(self):
         return self.__format__('')
 
     def __repr__(self):
-        return '<Quantity {}>'.format(self.value)
+        return '<Quantity {}>'.format(int(self))
 
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
@@ -172,7 +174,7 @@ class Quantity(object):
         :return: `(sig, exp, rem)`
 
         """
-        sig, exp, rem = self.value, 0, 0
+        sig, exp, rem = int(self), 0, 0
         while sig >= cutoff:
             exp += 1
             sig, new_rem = divmod(sig, base)
