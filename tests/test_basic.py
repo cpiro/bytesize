@@ -4,6 +4,14 @@ from nose.tools import raises
 from future.utils import PY2
 
 import bytesize as bs
+from bytesize import Quantity as Q
+
+
+def test_types():
+    assert type(1 + 1) == int
+    assert type(Q(1) + 1) == Q
+    assert type(1 + Q(1)) == Q
+    assert type(Q(1) + Q(1)) == Q
 
 
 def test_simple():
