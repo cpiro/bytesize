@@ -70,12 +70,12 @@ def test_relations():
     assert not (Q(1) >= Q(10))
 
 
-def test_neg_and_frac():
+def test_unparsable():
     @raises(TypeError)
     def check(value):
         Q(value)
 
-    for value in (-1, -1.0, 0.1, 10123123.1):
+    for value in (-1, -1.0, 0.1, 10123123.1, object()):
         yield check, value
 
 
