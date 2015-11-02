@@ -9,8 +9,6 @@ import string
 
 __all__ = ['Quantity', 'formatter', 'short_formatter']
 
-# xxx licensing
-
 if PY2:
     def is_string(ss):
         import __builtin__

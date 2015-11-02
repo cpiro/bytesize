@@ -21,15 +21,17 @@ If pint_ is installed, we support parsing strings like ``'100 megabytes'`` or
 they convert to a whole number of ``'bytes'``.
 
 .. xxx example of switching to a particular unit. we don't support that; just use pint
+.. xxx licensing
 
 Features
 ========
 
 - Python 2.7+/3.4+
-- guess units
-- Obsessive: always binary/decimal properly
+- guess units, cutoff (configable)
+- specify attempt metric units
+- always binary/decimal properly (see wiki)
 - exacts (no .s)
-- cutoff (configable)
+-
 
 >>> from bytesize import Quantity as Q
 >>> str(Q(1000 * 1024**7 - 1))
