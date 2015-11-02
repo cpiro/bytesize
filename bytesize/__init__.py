@@ -58,19 +58,28 @@ UNITS_TABLE = {
 class Quantity(int):
     """Represents a quantity of bytes, suitable for formatting.
 
-    :param value: a number of bytes. If `value` is an `int`, this object
-                  represents that number of bytes.  If pint_ is
+    :param value: a non-negative, integral number of bytes. If pint_ is
                   available, `value` may also be specified as a
                   :class:`pint.Quantity` or a `str` to pass to
                   :class:`pint.Quantity`'s constructor.
-    :type value: int or :class:`pint.Quantity` or str
-    :raises NeedPintForParsingError: if `value` is not an `int` and
+    :type value: Integral or :class:`pint.Quantity` or str
+    :raises TypeError: if `value` is not integral or is negative
+    :raises NeedPintForParsingError: if `value` is a `str` and
                                      pint_ is not installed
     """
 
     def __new__(cls, value):
+        orig_value = value
+
         if _ureg and is_string(value):
             value = _ureg(value)
+        elif isinstance(value, float):
+            if value.is_integer():
+                value = int(value)
+            else:
+                raise TypeError("Value {} must be integral".format(orig_value))
+        elif isinstance(value, Quantity):
+            value = int(value)
 
         if _ureg and isinstance(value, pint.quantity._Quantity):
             assert value.magnitude >= 0
@@ -78,14 +87,70 @@ class Quantity(int):
             assert isinstance(bytes_f, int) or bytes_f.is_integer()
             value = int(bytes_f)
         elif isinstance(value, int):
-            pass
-        else:
+            if value < 0:
+                raise TypeError("Value {} must be non-negative".format(orig_value))
+        elif is_string(value):
             raise NeedPintForParsingError(value)
+        else:
+            raise TypeError("Cannot parse {} {!r} as Quantity".format(type(orig_value).__name__, orig_value))
 
         return super(Quantity, cls).__new__(cls, value)
 
     def __int__(self):
         return int.__int__(self)
+
+    def __add__(self, other):
+        return Quantity(int(self) + other)
+
+    def __radd__(self, other):
+        return Quantity(other + int(self))
+
+    def __sub__(self, other):
+        return Quantity(int(self) - other)
+
+    def __rsub__(self, other):
+        return Quantity(other - int(self))
+
+    def __mul__(self, other):
+        return Quantity(int(self) * other)
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __truediv__(self, other):
+        return Quantity(int(self) / other)
+
+    def __rtruediv__(self, other):
+        return Quantity(other / int(self))
+
+    def __floordiv__(self, other):
+        return Quantity(int(self) // other)
+
+    def __rfloordiv__(self, other):
+        return Quantity(other // int(self))
+
+    def __eq__(self, other):
+        return int(self) == other
+
+    def __lt__(self, other):
+        if type(other) != Quantity:
+            raise TypeError("unorderable types: {}() < {}()".format(type(self).__name__, type(other).__name__))
+        return int(self) < int(other)
+
+    def __le__(self, other):
+        if type(other) != Quantity:
+            raise TypeError("unorderable types: {}() <= {}()".format(type(self).__name__, type(other).__name__))
+        return int(self) <= int(other)
+
+    def __gt__(self, other):
+        if type(other) != Quantity:
+            raise TypeError("unorderable types: {}() > {}()".format(type(self).__name__, type(other).__name__))
+        return int(self) > int(other)
+
+    def __ge__(self, other):
+        if type(other) != Quantity:
+            raise TypeError("unorderable types: {}() >= {}()".format(type(self).__name__, type(other).__name__))
+        return int(self) >= int(other)
 
     def __str__(self):
         return self.__format__('')

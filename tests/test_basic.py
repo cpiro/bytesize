@@ -1,17 +1,12 @@
 # Don't import future. Real Python 2 users won't
 
-from nose.tools import raises
+import operator
+
+from nose.tools import raises, assert_raises
 from future.utils import PY2
 
 import bytesize as bs
 from bytesize import Quantity as Q
-
-
-def test_types():
-    assert type(1 + 1) == int
-    assert type(Q(1) + 1) == Q
-    assert type(1 + Q(1)) == Q
-    assert type(Q(1) + Q(1)) == Q
 
 
 def test_simple():
@@ -31,6 +26,77 @@ def test_simple():
     yield for_quantity, bs.Quantity(1400605)
     if PY2:
         yield for_quantity, bs.Quantity(eval('1400605L'))
+
+
+def test_arithmetic():
+    assert type(1 + 1) == int
+    assert type(Q(1) + 1) == Q
+    assert type(1 + Q(1)) == Q
+    assert type(Q(1) + Q(1)) == Q
+
+    assert type(1 - 1) == int
+    assert type(Q(1) - 1) == Q
+    assert type(1 - Q(1)) == Q
+    assert type(Q(1) - Q(1)) == Q
+
+    assert type(1 * 1) == int
+    assert type(Q(1) * 1) == Q
+    assert type(1 * Q(1)) == Q
+    assert type(Q(1) * Q(1)) == Q
+
+    assert type(1 / 1) == float
+    assert type(Q(1) / 1) == Q
+    assert type(1 / Q(1)) == Q
+    assert type(Q(1) / Q(1)) == Q
+
+
+def test_relations():
+    assert Q(10) > Q(1)
+    assert Q(10) >= Q(1)
+    assert Q(10) >= Q(10)
+    assert Q(10) == Q(10)
+    assert Q(10) != Q(1)
+    assert Q(1) <= Q(10)
+    assert Q(10) <= Q(10)
+    assert Q(1) < Q(10)
+
+    assert not (Q(10) < Q(1))
+    assert not (Q(10) <= Q(1))
+    assert not (Q(10) < Q(10))
+    assert not (Q(10) != Q(10))
+    assert not (Q(10) == Q(1))
+    assert not (Q(1) >= Q(10))
+    assert not (Q(10) > Q(10))
+    assert not (Q(1) >= Q(10))
+
+
+def test_neg_and_frac():
+    @raises(TypeError)
+    def check(value):
+        Q(value)
+
+    for value in (-1, -1.0, 0.1, 10123123.1):
+        yield check, value
+
+
+def test_incomparable():
+    ops = (operator.lt, operator.le,
+           operator.gt, operator.ge)
+
+    @raises(TypeError)
+    def check(lhs, op, rhs):
+        op(lhs, rhs)
+
+    for lhs, op, rhs in (
+            [(Q(1), op, 1) for op in ops] +
+            [(1, op, Q(1)) for op in ops]):
+        yield check, lhs, op, rhs
+
+
+def test_integral_float():
+    assert Q(1.0) == Q(1)
+    assert Q(123456789.0) == Q(123456789)
+
 
 def test_parsing():
     pp = bs.formatter()

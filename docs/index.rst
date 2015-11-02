@@ -3,6 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. xxx nice docs http://nose.readthedocs.org/en/latest/index.html
+   http://pytest.org/latest/
+
 Overview
 ========
 Generate human-readable strings for quantities of bytes!
