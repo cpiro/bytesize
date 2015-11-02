@@ -117,11 +117,17 @@ class Quantity(int):
     def __rmul__(self, other):
         return self * other
 
-    def __truediv__(self, other):
+    def __div__(self, other):
         return Quantity(int(self) / other)
 
-    def __rtruediv__(self, other):
+    def __rdiv__(self, other):
         return Quantity(other / int(self))
+
+    def __truediv__(self, other):
+        return Quantity(int.__truediv__(int(self), other))
+
+    def __rtruediv__(self, other):
+        return Quantity(int.__truediv__(other, int(self))
 
     def __floordiv__(self, other):
         return Quantity(int(self) // other)
