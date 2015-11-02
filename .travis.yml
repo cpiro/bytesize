@@ -9,8 +9,8 @@ python:
 #  - pypy3
 env:
   matrix:
-    - SUITE=test EXTRAS=""
-    - SUITE=test EXTRAS="[pint]"
+    - SUITE=nose EXTRAS=""
+    - SUITE=nose EXTRAS="[pint]"
 install:
   - pip install -r requirements.txt
   - pip install -r requirements-test.txt
@@ -25,3 +25,5 @@ matrix:
       env: SUITE=html EXTRAS="[pint]"
     - python: 3.5
       env: SUITE=doctest EXTRAS="[pint]"
+    - python: 3.5
+      env: SUITE=hardcases-stability EXTRAS="[pint]"
