@@ -127,7 +127,7 @@ class Quantity(int):
         return Quantity(int.__truediv__(int(self), other))
 
     def __rtruediv__(self, other):
-        return Quantity(int.__truediv__(other, int(self))
+        return Quantity(int.__truediv__(other, int(self)))
 
     def __floordiv__(self, other):
         return Quantity(int(self) // other)
