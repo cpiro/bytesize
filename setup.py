@@ -19,19 +19,22 @@ from setuptools import setup, find_packages
 # __doc__ = long_description
 # setup(long_description=long_description,)
 
-setup(
-    name = 'bytesize',
-    version = '0.1',
-    packages = ['bytesize'],
-    extras_require = {
-        'pint': 'pint>=0.6'
-    },
+VERSION = '0.1'
 
-    # metadata for upload to PyPI
-    author = "Chris Piro",
-    author_email = "cpiro@cpiro.com",
-    description = "Generate human-readable string representations of quantities of bytes",
-    license = "GPL",
-    keywords = "byte size file data units formatter human pretty",
-    url = "https://github.com/cpiro/bytesize",
-)
+if __name__ == '__main__':
+    setup(
+        name = 'bytesize',
+        version = VERSION,
+        packages = ['bytesize'],
+        extras_require = {
+            'pint': 'pint>=0.6'
+        },
+
+        # metadata for upload to PyPI
+        author = "Chris Piro",
+        author_email = "cpiro@cpiro.com",
+        description = "Generate human-readable string representations of quantities of bytes",
+        license = "GPL",
+        keywords = "byte size file data units formatter human pretty",
+        url = "https://github.com/cpiro/bytesize",
+    )
