@@ -25,8 +25,6 @@ If pint_ is installed, we support parsing strings like ``'100 megabytes'`` or
 ``'25 GiB'``. We also support values of :class:`pint.Quantity`, so long as
 they convert to a whole number of ``'bytes'``.
 
-.. xxx licensing
-
 Features
 ========
 - *Binary and decimal units*: Choose between `binary IEC
@@ -63,7 +61,7 @@ Contribute
 - Issues: https://github.com/cpiro/bytesize/issues
 
 More information
-========
+================
 
 .. toctree::
    :maxdepth: 1
