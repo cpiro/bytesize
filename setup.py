@@ -34,7 +34,7 @@ if __name__ == '__main__':
         author = "Chris Piro",
         author_email = "cpiro@cpiro.com",
         description = "Generate human-readable string representations of quantities of bytes",
-        license = "GPL",
+        license = "Apache",
         keywords = "byte size file data units formatter human pretty",
         url = "https://github.com/cpiro/bytesize",
     )
