@@ -5,7 +5,7 @@ import operator
 from nose.tools import raises, assert_raises
 from future.utils import PY2
 
-import bytesize as bs
+import bytesize
 from bytesize import Quantity as Q
 
 
@@ -19,13 +19,13 @@ def test_simple():
         assert '{:<0}'.format(q) == '1.335 MiB'
         assert '{:0}'.format(q) == '1.335 MiB'
 
-        pp = bs.formatter()
+        pp = bytesize.formatter()
         assert pp(0) == '0 B'
         assert pp(-0) == '0 B'
 
-    yield for_quantity, bs.Quantity(1400605)
+    yield for_quantity, Q(1400605)
     if PY2:
-        yield for_quantity, bs.Quantity(eval('1400605L'))
+        yield for_quantity, Q(eval('1400605L'))
 
 
 def test_arithmetic():
@@ -99,7 +99,7 @@ def test_integral_float():
 
 
 def test_parsing():
-    pp = bs.formatter()
+    pp = bytesize.formatter()
     data = [
         ('-0 B', '0 B'),
         ('10230 B', '9.990 KiB'),
@@ -117,12 +117,12 @@ def test_parsing():
         (u'1400605 B', '1.335 MiB'),
     ]
 
-    if bs._ureg:
+    if bytesize._ureg:
         def check_direct(b, result):
             assert pp(b) == result
-            assert pp(bs._ureg(b)) == result
+            assert pp(bytesize._ureg(b)) == result
     else:
-        @raises(bs.NeedPintForParsingError)
+        @raises(bytesize.NeedPintForParsingError)
         def check_direct(b, result):
             pp(b)
 
@@ -198,7 +198,7 @@ def test_format_type():
     ]
     def check(spec, value, result):
         fmt_str = '{{:{}}}'.format(spec)
-        assert fmt_str.format(bs.Quantity(value)) == result
+        assert fmt_str.format(Q(value)) == result
 
     for spec, value, result in data:
         yield check, spec, value, result
@@ -231,7 +231,7 @@ def test_short_tolerance():
         (None, 2999999999999, '2.72Ti'),
     ]
     def check(tolerance, value, result):
-        assert bs.short_formatter(tolerance=tolerance)(value) == result
+        assert bytesize.short_formatter(tolerance=tolerance)(value) == result
 
     for tolerance, value, result in data:
         yield check, tolerance, value, result
@@ -239,43 +239,43 @@ def test_short_tolerance():
 
 @raises(AssertionError)
 def test_short_tolerance_error():
-    bs.short_formatter(tolerance=9000)
-    bs.short_formatter(tolerance=1.1)
-    bs.short_formatter(tolerance=-0.1)
-    bs.short_formatter(tolerance=-9000)
+    bytesize.short_formatter(tolerance=9000)
+    bytesize.short_formatter(tolerance=1.1)
+    bytesize.short_formatter(tolerance=-0.1)
+    bytesize.short_formatter(tolerance=-9000)
 
 
-if bs._ureg:
+if bytesize._ureg:
     def test_other_registry():
-        other_ureg = bs.pint.UnitRegistry()
+        other_ureg = bytesize.pint.UnitRegistry()
         q = other_ureg('800 kilobits/sec') * other_ureg('5 days')
-        assert bs.formatter()(q) == '40.23 GiB'
+        assert bytesize.formatter()(q) == '40.23 GiB'
 
-    @raises(bs.pint.unit.DimensionalityError)
+    @raises(bytesize.pint.unit.DimensionalityError)
     def test_dimensionality_error():
-        other_ureg = bs.pint.UnitRegistry()
+        other_ureg = bytesize.pint.UnitRegistry()
         q = other_ureg("20080313 seconds per square gram")
-        bs.formatter()(q)
+        bytesize.formatter()(q)
 
 
 @raises(ValueError)
 def test_format_unknown_code():
-    '{:z}'.format(bs.Quantity(10000))
+    '{:z}'.format(Q(10000))
 
 
 @raises(ValueError)
 def test_format_mutex_code():
-    '{:di}'.format(bs.Quantity(10000))
+    '{:di}'.format(Q(10000))
 
 
 @raises(ValueError)
 def test_format_specifier_missing_precision():
-    '{:.}'.format(bs.Quantity(1400605))
+    '{:.}'.format(Q(1400605))
 
 
-@raises(bs.UnitNoExistError)
+@raises(bytesize.UnitNoExistError)
 def test_way_too_big():
-    print(bs.Quantity(100000000000000000000000000000))
+    print(Q(100000000000000000000000000000))
 
 
 PARSE_SPEC_CASES = [
@@ -291,11 +291,11 @@ PARSE_SPEC_CASES = [
 
 def test_parse_spec():
     def reversible(spec_tuple):
-        spec = bs.Quantity.unparse_spec(*spec_tuple)
-        assert spec_tuple == bs.Quantity.parse_spec(spec)
+        spec = Q.unparse_spec(*spec_tuple)
+        assert spec_tuple == Q.parse_spec(spec)
 
     def basic(spec_tuple, values):
-        spec = bs.Quantity.unparse_spec(*spec_tuple)
+        spec = Q.unparse_spec(*spec_tuple)
         fill, align, width, precision, type_ = spec_tuple
         format_str = '{:' + spec + '}'
 
@@ -313,7 +313,7 @@ def test_parse_spec():
 
             print("{:13} {!r}".format('', byt))
 
-    values = [bs.Quantity(k) for k in (1, 999, 1023, 102526)]
+    values = [Q(k) for k in (1, 999, 1023, 102526)]
 
     for spec_tuple in PARSE_SPEC_CASES:
         yield reversible, spec_tuple
