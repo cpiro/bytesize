@@ -27,20 +27,20 @@ they convert to a whole number of ``'bytes'``.
 
 Features
 ========
-- *Binary and decimal units*: Choose between `binary IEC
+- **Binary and decimal units**: Choose between `binary IEC
   <https://en.wikipedia.org/wiki/Binary_prefix>`_ and decimal SI unit
   prefixes, or allow `bytesize` to guess *xxx ref*. The units are chosen
   automatically to keep the magnitude between 0 and 1,000 (or optionally 1,024
   for binary units). Units are your choice of abbreviated symbols or full
   names.
-- *Pedantic*: The `long formatter <:func:`formatter`>`_ will omit a decimal
+- **Pedantic**: The `long formatter <:func:`formatter`>`_ will omit a decimal
   point if and only if the quantity is exact. Approximations will never be
   greater than the actual value -- we use only integer math *xxx ref* to avoid
   floating point rounding errors.
-- *Pint integration*: If installed, use pint_ to parse string representations,
+- **Pint integration**: If installed, use pint_ to parse string representations,
   and allow formatting of any :class:`pint.Quantity` that converts to a whole
   number of ``'bytes'``.
-- *Python 2/3*: supported and tested on Python 2.7+ and 3.4+
+- **Python 2/3**: supported and tested on Python 2.7+ and 3.4+.
 
 >>> fmt(1000 * 1024**7 - 1)
 '999.9 ZiB'
@@ -53,12 +53,6 @@ Installation
 ============
 
 >>> pip install bytesize  # doctest: +SKIP
-
-Contribute
-==========
-
-- Source code: https://github.com/cpiro/bytesize
-- Issues: https://github.com/cpiro/bytesize/issues
 
 More information
 ================
