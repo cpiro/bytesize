@@ -35,7 +35,7 @@ Features
 - **Pedantic**: We omit a decimal point if and only if the quantity is
   exact. Approximations will never be greater than the actual value -- we use
   only integer math *xxx ref* to avoid floating point rounding errors.
-- according to :pep:`3101`  xxx formatting language, tables
+- **  :pep:`3101`  xxx formatting language, tables
 - **Operators**: arithmetic operators (except floating-point division) and
   comparison operators are defined
 - **Pint integration**: If installed, use pint_ to parse string representations,

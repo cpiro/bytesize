@@ -1,11 +1,11 @@
-==============================
-Format specifier mini-language
-==============================
+==================================
+Format specification mini-language
+==================================
 
 .. module:: bytesize
 
-Format specifiers for :class:`Quantity` are similar to Python's
-built-in numerics, and control how values are presented.
+Format specifiers for :class:`Quantity` are similar to those for
+:ref:`Python's built-in numeric types <python:formatspec>`.
 
 .. productionlist::
    format_spec: [[`fill`]`align`][`width`][.`precision`][`type`]
@@ -16,7 +16,10 @@ built-in numerics, and control how values are presented.
    type: "i" | "d" | "a" | "l"
 
 *width* is a whole number defining the minimum field width. If not specified,
-then the field width will be determined by the content.
+then the field width will be determined by the content. To avoid overflow,
+*width* should be at least *precision* plus the length of the longest unit
+name plus one (for the space), for example, at least 9 for abbreviated binary
+units.
 
 *precision* is a whole number specifying the maximum length of the numeric
 portion of the representation, including any decimal point. The default
