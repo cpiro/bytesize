@@ -474,6 +474,8 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     >>> fmt(1400605)
     '1.335 MiB'
 
+    .. _formatter:
+
     :param base: 1000 to use decimal SI units, or 1024 to use binary IEC units
     :param cutoff: the highest allowable formatted number. Must be either
                    1000 or 1024, and less than or equal to `base`
