@@ -1,6 +1,8 @@
-==================================
-Format specification mini-language
-==================================
+.. _formatting:
+
+=================
+Format specifiers
+=================
 
 .. module:: bytesize
 

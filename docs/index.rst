@@ -30,14 +30,17 @@ Features
 - **Binary and decimal units**: Choose between `binary IEC and decimal SI unit
   prefixes <https://en.wikipedia.org/wiki/Binary_prefix>`_, or allow
   *bytesize* to guess. The units are chosen automatically to keep the
-  magnitude between 0 and 1,000 (or optionally 1,024 for binary units. Units
+  magnitude between 0 and 1,000 (or optionally 1,024 for binary units). Units
   are your choice of abbreviated symbols or full names.
 - **Pedantic**: We omit a decimal point if and only if the quantity is
   exact. Approximations will never be greater than the actual value -- we use
-  only integer math *xxx ref* to avoid floating point rounding errors.
-- **  :pep:`3101`  xxx formatting language, tables
-- **Operators**: arithmetic operators (except floating-point division) and
-  comparison operators are defined
+  only integer (xxx decimal?) math to avoid floating-point errors.
+- **Advanced formatting**: Format quantities naturally with
+  :meth:`str.format` -- we provide a :ref:`mini-language <formatting>` for
+  customizing presentation.
+- **Natural interoperability**: Arithmetic operators and comparison operators
+  are defined as you would expect. :class:`Quantity` subclasses :class:`int`
+  and behaves as such otherwise.
 - **Pint integration**: If installed, use pint_ to parse string representations,
   and allow formatting of any :class:`pint.Quantity` that converts to a whole
   number of ``'bytes'``.
