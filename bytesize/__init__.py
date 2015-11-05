@@ -2,11 +2,11 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from builtins import *
 from future.utils import PY2
 
-# xxx decimal module?
 
 import os
 import sys
-import math
+import fractions
+import decimal
 import string
 
 __all__ = ['Quantity', 'formatter', 'short_formatter']
@@ -163,29 +163,45 @@ class Quantity(int):
         result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
         return result
 
-    def factor_guess_base(self, tolerance):
+    def guess_base(self, tolerance):
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
         # (like HDD capacities), round down and call it 'exact'. otherwise use
         # base 1024
 
-        if tolerance is not None:
-            sig10, exp10, rem10 = self.factor(base=1000, cutoff=1000)
-            if rem10 <= tolerance * (1000**exp10):
-                return 1000, sig10, exp10, 0
+        _, q, _ = self.division(base=1000, cutoff=1000)
 
-        sig2, exp2, rem2 = self.factor(base=1024, cutoff=1000)
-        return 1024, sig2, exp2, rem2
+        if q - q//1 <= tolerance:
+            return 1000
+        else:
+            return 1024
 
-    def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
-        # returns (kind, number, units)
+    def division(self, base=1024, cutoff=1000):
         assert base in (1000, 1024)
         assert cutoff in (1000, 1024)
+
+        q = fractions.Fraction(numerator=int(self))
+        exp = 0
+        while q >= cutoff:
+            exp += 1
+            q /= base
+            if base > cutoff and q == cutoff:
+                break
+
+        kind = 'exact' if q.denominator == 1 else 'trunc'
+        return kind, q, exp
+
+    def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         assert base >= cutoff
         assert digits >= 5
 
-        sig, exp, rem = self.factor(base=base, cutoff=cutoff)
+        kind, q, exp = self.division(base=base, cutoff=cutoff)
+        if kind == 'exact':
+            number = str(q.numerator)
+        else:
+            number = Quantity.decimalize(q, digits)
 
-        def units(plural):
+        def get_units():
+            plural = q != 1
             try:
                 prefix = UNITS_TABLE[base][exp][0 if abbrev else 1]
                 base_unit = 'B' if abbrev else ('bytes' if plural else 'byte')
@@ -193,66 +209,37 @@ class Quantity(int):
             except IndexError:
                 pass
             raise UnitNoExistError()
+        units = get_units()
 
-        if rem == 0:
-            return 'exact', sig, units(sig != 1)  # "{:d} {}".format(sig, units)
-        else:
-            whole_str = "{:d}.".format(sig)
-            digits_str = Quantity.decimal_part(digits - len(whole_str), rem, base, exp)
-            number_str = whole_str + digits_str
-            frac_quot = rem / base**exp
-            assert len(number_str) == digits
-
-            return 'trunc', number_str, units(True)  # "{} {}".format(number, units)
+        return kind, number, units
 
     def short_humanize(self, tolerance=0.01):
-        # returns (kind, number, units)
-        base, sig, exp, rem = self.factor_guess_base(tolerance)
+        if tolerance is not None:
+            base = self.guess_base(tolerance)
+        else:
+            base = 1024
 
-        def units(plural):
+        cutoff = 1000
+
+        kind, q, exp = self.division(base=base, cutoff=cutoff)
+
+        def get_units():
             try:
                 return UNITS_TABLE[base][exp][0]
             except IndexError:
                 pass
             raise UnitNoExistError()
 
-        if rem == 0:
-            return 'exact', sig, units(True)
-        elif sig < 100:
-            whole = "{}.".format(sig)
-            digits = Quantity.decimal_part(4-len(whole), rem, base, exp)
-            number = whole + digits
-            frac_quot = rem / base**exp
-            return 'trunc', number, units(True)
+        units = get_units()
+
+        if base == 1000:
+            return kind, str(q//1), units
+        elif kind == 'exact':
+            return kind, str(q.numerator), units
+        elif q < 100:
+            return kind, Quantity.decimalize(q, 4), units
         else:
-            return 'trunc', sig, units(True)
-
-    def factor(self, base, cutoff):
-        """Solves for `(sig, exp, rem)`, where
-
-        :math:`value = sig * base^{exp} + rem`
-
-        :math:`sig < cutoff`
-
-        :return: `(sig, exp, rem)`
-
-        """
-        sig, exp, rem = int(self), 0, 0
-        while sig >= cutoff:
-            exp += 1
-            sig, new_rem = divmod(sig, base)
-            rem += new_rem * (base**(exp-1))
-            if rem == 0 and sig == cutoff and base > cutoff:
-                break  # is exactly the cutoff amount (when base > cutoff)
-        return sig, exp, rem
-
-    @staticmethod
-    def decimal_part(places, rem, base, exp):
-        digits = ''
-        while len(digits) < places:
-            digit, rem = divmod(10 * rem, base**exp)
-            digits += '%0d' % (digit,)
-        return digits
+            return kind, str(q//1), units
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
@@ -274,7 +261,7 @@ class Quantity(int):
         elif type_pref == 'd':
             base = 1000
         elif type_pref == 'a':
-            base, _, _, _ = self.factor_guess_base(tolerance=0)
+            base = self.guess_base(tolerance=0)
 
         binary = base == 1024
         # "precision" from spec is the width of the number itself (including the dot)
@@ -287,6 +274,15 @@ class Quantity(int):
         cutoff = 1024 if binary and digits_width > 5 else 1000
 
         return base, cutoff, digits_width, units_width, abbrev
+
+    @staticmethod
+    def decimalize(q, length):
+        D = decimal.Decimal
+        with decimal.localcontext() as ctx:
+            ctx.prec = length + 1
+            ctx.rounding = decimal.ROUND_DOWN
+            n = D(q.numerator) / D(q.denominator)
+            return str(n)[0:length]
 
     @staticmethod
     def string_format(kind, number, units, fill=None, align=None, string_width=None, units_width=None):

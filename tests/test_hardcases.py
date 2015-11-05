@@ -7,6 +7,7 @@ import sys
 import re
 from nose.tools import raises
 
+# xxx longen
 import bytesize as bs
 
 if __name__ != '__main__':
@@ -38,29 +39,12 @@ def test_hardcases():
 
     def check_long_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
-        sig, exp, rem = bs.Quantity(b).factor(base=base, cutoff=cutoff)
-        assert b == sig * base**exp + rem
-        assert sig < cutoff or (sig == cutoff and base > cutoff)
+        kind, q, exp = bs.Quantity(b).division(base=base, cutoff=cutoff)
 
-        # decimal_part
-        width = 5
-        whole = "{:d}.".format(sig)
-        places = width - len(whole)
-        digits = bs.Quantity.decimal_part(places, rem, base, exp)
-        assert isinstance(digits, str)  # sure
+        assert b == q * base**exp
+        assert q < cutoff or (q == cutoff and base > cutoff)
 
-        # should be the same as the floating division
-        digits_int = int(digits if digits != '' else 0)
-        frac_lowerbound = float(digits_int) / float(10**places)
-        frac_upperbound = float(digits_int + 1) / float(10**places)
-        frac_quot = rem / base**exp
-
-        assert frac_lowerbound <= frac_quot
-        assert frac_quot <= frac_upperbound
-        # ^^^ strictly less than, *unless* frac_quot doesn't have precision
-        # enough to represent
-        assert len(digits) == places
-        assert ('.' in result) == (rem != 0), \
+        assert ('.' in result) == (q.denominator != 1), \
             "there's a decimal dot iff the value is not exact"
 
     def check_reverse(b, result, kwargs):
