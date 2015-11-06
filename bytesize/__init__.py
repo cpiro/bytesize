@@ -222,7 +222,7 @@ class Quantity(int):
         else:
             number = q.decimalize(digits)
 
-        def get_units():
+        def units():
             plural = q != 1
             try:
                 prefix = UNITS_TABLE[base][exp][0 if abbrev else 1]
@@ -231,9 +231,8 @@ class Quantity(int):
             except IndexError:
                 pass
             raise UnitNoExistError()
-        units = get_units()
 
-        return number, units
+        return number, units()
 
     def short_humanize(self, tolerance=0.01):
         if tolerance is not None:
@@ -241,27 +240,21 @@ class Quantity(int):
         else:
             base = 1024
 
-        cutoff = 1000
+        q, exp = Quotient.division(int(self), base=base, cutoff=1000)
 
-        q, exp = Quotient.division(int(self), base=base, cutoff=cutoff)
-
-        def get_units():
+        def units():
             try:
                 return UNITS_TABLE[base][exp][0]
             except IndexError:
                 pass
             raise UnitNoExistError()
 
-        units = get_units()
-
-        if base == 1000:
-            return str(q.whole_part), units
-        elif q.exact == 1:
-            return str(q.numerator), units
+        if q.exact:
+            return str(q.numerator), units()
         elif q < 100:
-            return q.decimalize(4), units
+            return q.decimalize(4), units()
         else:
-            return str(q.whole_part), units
+            return str(q.whole_part), units()
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
