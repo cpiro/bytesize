@@ -5,7 +5,7 @@ from future.utils import PY2
 
 import os
 import sys
-import fractions
+from fractions import Fraction
 import decimal
 import string
 
@@ -179,7 +179,7 @@ class Quantity(int):
         assert base in (1000, 1024)
         assert cutoff in (1000, 1024)
 
-        q = fractions.Fraction(numerator=int(self))
+        q = Fraction(numerator=int(self))
         exp = 0
         while q >= cutoff:
             exp += 1
