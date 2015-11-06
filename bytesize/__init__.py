@@ -56,6 +56,42 @@ UNITS_TABLE = {
     ],
 }
 
+class Quotient(Fraction):
+    @staticmethod
+    def division(value, base=1024, cutoff=1000):
+        assert base in (1000, 1024)
+        assert cutoff in (1000, 1024)
+
+        q = Fraction(numerator=value)
+        exp = 0
+        while q >= cutoff:
+            exp += 1
+            q /= base
+            if base > cutoff and q == cutoff:
+                break
+
+        return Quotient(q), exp
+
+    @property
+    def exact(self):
+        return self.denominator == 1
+
+    @property
+    def whole_part(self):
+        return self // 1
+
+    @property
+    def fractional_part(self):
+        return self - self // 1
+
+    def decimalize(self, length):
+        D = decimal.Decimal
+        with decimal.localcontext() as ctx:
+            ctx.prec = length + 1
+            ctx.rounding = decimal.ROUND_DOWN
+            n = D(self.numerator) / D(self.denominator)
+            return str(n)[0:length]
+
 
 class Quantity(int):
     """Represents a quantity of bytes, suitable for formatting.
@@ -168,37 +204,23 @@ class Quantity(int):
         # (like HDD capacities), round down and call it 'exact'. otherwise use
         # base 1024
 
-        q, exp = self.division(base=1000, cutoff=1000)
+        q, exp = Quotient.division(int(self), base=1000, cutoff=1000)
 
-        if q - q//1 <= tolerance:
+        if q.fractional_part <= tolerance:
             return 1000
         else:
             return 1024
-
-    def division(self, base=1024, cutoff=1000):
-        assert base in (1000, 1024)
-        assert cutoff in (1000, 1024)
-
-        q = Fraction(numerator=int(self))
-        exp = 0
-        while q >= cutoff:
-            exp += 1
-            q /= base
-            if base > cutoff and q == cutoff:
-                break
-
-        return q, exp
 
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         assert base >= cutoff
         assert digits >= 5
 
-        q, exp = self.division(base=base, cutoff=cutoff)
+        q, exp = Quotient.division(int(self), base=base, cutoff=cutoff)
 
-        if q.denominator == 1:
+        if q.exact:
             number = str(q.numerator)
         else:
-            number = Quantity.decimalize(q, digits)
+            number = q.decimalize(digits)
 
         def get_units():
             plural = q != 1
@@ -221,7 +243,7 @@ class Quantity(int):
 
         cutoff = 1000
 
-        q, exp = self.division(base=base, cutoff=cutoff)
+        q, exp = Quotient.division(int(self), base=base, cutoff=cutoff)
 
         def get_units():
             try:
@@ -233,13 +255,13 @@ class Quantity(int):
         units = get_units()
 
         if base == 1000:
-            return str(q//1), units
-        elif q.denominator == 1:
+            return str(q.whole_part), units
+        elif q.exact == 1:
             return str(q.numerator), units
         elif q < 100:
-            return Quantity.decimalize(q, 4), units
+            return q.decimalize(4), units
         else:
-            return str(q//1), units
+            return str(q.whole_part), units
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
@@ -274,15 +296,6 @@ class Quantity(int):
         cutoff = 1024 if binary and digits_width > 5 else 1000
 
         return base, cutoff, digits_width, units_width, abbrev
-
-    @staticmethod
-    def decimalize(q, length):
-        D = decimal.Decimal
-        with decimal.localcontext() as ctx:
-            ctx.prec = length + 1
-            ctx.rounding = decimal.ROUND_DOWN
-            n = D(q.numerator) / D(q.denominator)
-            return str(n)[0:length]
 
     @staticmethod
     def string_format(number, units, fill=None, align=None, string_width=None, units_width=None):
