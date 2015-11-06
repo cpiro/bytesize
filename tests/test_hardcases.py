@@ -38,12 +38,12 @@ def test_hardcases():
 
     def check_long_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
-        q, exp = bytesize._Quotient.division(int(bytesize.Quantity(b)), base=base, cutoff=cutoff)
+        qq, exp = bytesize._Quotient.division(int(bytesize.Quantity(b)), base=base, cutoff=cutoff)
 
-        assert b == q * base**exp
-        assert q < cutoff or (q == cutoff and base > cutoff)
+        assert b == qq * base**exp
+        assert qq < cutoff or (qq == cutoff and base > cutoff)
 
-        assert ('.' in result) == (not q.exact), \
+        assert ('.' in result) == (not qq.exact), \
             "there's a decimal dot iff the value is not exact"
 
     def check_reverse(b, result, kwargs):
