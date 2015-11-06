@@ -7,8 +7,7 @@ import sys
 import re
 from nose.tools import raises
 
-# xxx longen
-import bytesize as bs
+import bytesize
 
 if __name__ != '__main__':
     from data_for_hardcases import *
@@ -29,7 +28,7 @@ def mk_formatter(**kwargs):
     _short = kwargs['_short']; del kwargs['_short']
 
     maybe_catch = catch if _catch else lambda f: f
-    factory = bs.short_formatter if _short else bs.formatter
+    factory = bytesize.short_formatter if _short else bytesize.formatter
     return maybe_catch(factory(**kwargs))
 
 
@@ -39,7 +38,7 @@ def test_hardcases():
 
     def check_long_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
-        kind, q, exp = bs.Quantity(b).division(base=base, cutoff=cutoff)
+        kind, q, exp = bytesize.Quantity(b).division(base=base, cutoff=cutoff)
 
         assert b == q * base**exp
         assert q < cutoff or (q == cutoff and base > cutoff)
@@ -57,7 +56,7 @@ def test_hardcases():
         else:
             lower_bound = 0.999
 
-        pint_bytes = bs._ureg(result).to('bytes').magnitude
+        pint_bytes = bytesize._ureg(result).to('bytes').magnitude
         if isinstance(pint_bytes, float):
             assert lower_bound <= (pint_bytes / b) <= 1, \
                 "_ureg(`result`) should be <= `b`, but not by too much"
@@ -71,7 +70,7 @@ def test_hardcases():
                 yield check_formatter, b, result, fmt
                 if not kwargs['_short']:
                     yield check_long_guts, b, result, kwargs
-                if bs._ureg:
+                if bytesize._ureg:
                     yield check_reverse, b, result, kwargs
             else:
                 yield raises(type(result))(fmt), b
