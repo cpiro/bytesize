@@ -199,25 +199,11 @@ class Quantity(int):
         result = Quantity.string_format(number, units, fill, align, string_width, units_width)
         return result
 
-    def guess_base(self, tolerance):
-        # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
-        # (like HDD capacities), round down and call it 'exact'. otherwise use
-        # base 1024
-
-        q, exp = Quotient.division(int(self), base=1000, cutoff=1000)
-
-        return 1000 if q.fractional_part <= tolerance else 1024
-
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         assert base >= cutoff
         assert digits >= 5
 
         q, exp = Quotient.division(int(self), base=base, cutoff=cutoff)
-
-        if q.exact:
-            number = str(q.numerator)
-        else:
-            number = q.decimalize(digits)
 
         def units():
             plural = q != 1
@@ -229,7 +215,10 @@ class Quantity(int):
                 pass
             raise UnitNoExistError()
 
-        return number, units()
+        if q.exact:
+            return str(q.numerator), units()
+        else:
+            return q.decimalize(digits), units()
 
     def short_humanize(self, tolerance=0.01):
         if tolerance is not None:
@@ -252,6 +241,15 @@ class Quantity(int):
             return q.decimalize(4), units()
         else:
             return str(q.whole_part), units()
+
+    def guess_base(self, tolerance):
+        # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
+        # (like HDD capacities), round down and call it 'exact'. otherwise use
+        # base 1024
+
+        q, exp = Quotient.division(int(self), base=1000, cutoff=1000)
+
+        return 1000 if q.fractional_part <= tolerance else 1024
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
