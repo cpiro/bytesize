@@ -206,10 +206,7 @@ class Quantity(int):
 
         q, exp = Quotient.division(int(self), base=1000, cutoff=1000)
 
-        if q.fractional_part <= tolerance:
-            return 1000
-        else:
-            return 1024
+        return 1000 if q.fractional_part <= tolerance else 1024
 
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         assert base >= cutoff
