@@ -63,15 +63,15 @@ class Quotient(Fraction):
         assert base in (1000, 1024)
         assert cutoff in (1000, 1024)
 
-        q = Fraction(numerator=value)
+        qq = Fraction(numerator=value)
         exp = 0
-        while q >= cutoff:
+        while qq >= cutoff:
             exp += 1
-            q /= base
-            if base > cutoff and q == cutoff:
+            qq /= base
+            if base > cutoff and qq == cutoff:
                 break
 
-        return Quotient(q), exp
+        return Quotient(qq), exp
 
     @property
     def exact(self):
@@ -204,10 +204,10 @@ class Quantity(int):
         assert base >= cutoff
         assert digits >= 5
 
-        q, exp = Quotient.division(int(self), base=base, cutoff=cutoff)
+        qq, exp = Quotient.division(int(self), base=base, cutoff=cutoff)
 
         def units():
-            plural = q != 1
+            plural = qq != 1
             try:
                 prefix = UNITS_TABLE[base][exp][0 if abbrev else 1]
                 base_unit = 'B' if abbrev else ('bytes' if plural else 'byte')
@@ -216,10 +216,10 @@ class Quantity(int):
                 pass
             raise UnitNoExistError()
 
-        if q.exact:
-            return str(q.numerator), units()
+        if qq.exact:
+            return str(qq.numerator), units()
         else:
-            return q.decimalize(digits), units()
+            return qq.decimalize(digits), units()
 
     def short_humanize(self, tolerance=0.01):
         if tolerance is not None:
@@ -227,7 +227,7 @@ class Quantity(int):
         else:
             base = 1024
 
-        q, exp = Quotient.division(int(self), base=base, cutoff=1000)
+        qq, exp = Quotient.division(int(self), base=base, cutoff=1000)
 
         def units():
             try:
@@ -236,21 +236,21 @@ class Quantity(int):
                 pass
             raise UnitNoExistError()
 
-        if q.exact or base == 1000:
-            return str(q.whole_part), units()
-        elif q < 100:
-            return q.decimalize(4), units()
+        if qq.exact or base == 1000:
+            return str(qq.whole_part), units()
+        elif qq < 100:
+            return qq.decimalize(4), units()
         else:
-            return str(q.whole_part), units()
+            return str(qq.whole_part), units()
 
     def guess_base(self, tolerance):
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
         # (like HDD capacities), round down and call it 'exact'. otherwise use
         # base 1024
 
-        q, exp = Quotient.division(int(self), base=1000, cutoff=1000)
+        qq, exp = Quotient.division(int(self), base=1000, cutoff=1000)
 
-        return 1000 if q.fractional_part <= tolerance else 1024
+        return 1000 if qq.fractional_part <= tolerance else 1024
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
