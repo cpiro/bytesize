@@ -38,7 +38,7 @@ def test_hardcases():
 
     def check_long_guts(b, result, kwargs):
         base, cutoff = kwargs['base'], kwargs['cutoff']
-        kind, q, exp = bytesize.Quantity(b).division(base=base, cutoff=cutoff)
+        q, exp = bytesize.Quantity(b).division(base=base, cutoff=cutoff)
 
         assert b == q * base**exp
         assert q < cutoff or (q == cutoff and base > cutoff)

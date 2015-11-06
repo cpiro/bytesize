@@ -159,8 +159,8 @@ class Quantity(int):
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
         base, cutoff, digits_width, units_width, abbrev = self.format_options(fill, align, string_width, precision, type_)
-        kind, number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
-        result = Quantity.string_format(kind, number, units, fill, align, string_width, units_width)
+        number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
+        result = Quantity.string_format(number, units, fill, align, string_width, units_width)
         return result
 
     def guess_base(self, tolerance):
@@ -168,7 +168,7 @@ class Quantity(int):
         # (like HDD capacities), round down and call it 'exact'. otherwise use
         # base 1024
 
-        _, q, _ = self.division(base=1000, cutoff=1000)
+        q, exp = self.division(base=1000, cutoff=1000)
 
         if q - q//1 <= tolerance:
             return 1000
@@ -187,15 +187,15 @@ class Quantity(int):
             if base > cutoff and q == cutoff:
                 break
 
-        kind = 'exact' if q.denominator == 1 else 'trunc'
-        return kind, q, exp
+        return q, exp
 
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         assert base >= cutoff
         assert digits >= 5
 
-        kind, q, exp = self.division(base=base, cutoff=cutoff)
-        if kind == 'exact':
+        q, exp = self.division(base=base, cutoff=cutoff)
+
+        if q.denominator == 1:
             number = str(q.numerator)
         else:
             number = Quantity.decimalize(q, digits)
@@ -211,7 +211,7 @@ class Quantity(int):
             raise UnitNoExistError()
         units = get_units()
 
-        return kind, number, units
+        return number, units
 
     def short_humanize(self, tolerance=0.01):
         if tolerance is not None:
@@ -221,7 +221,7 @@ class Quantity(int):
 
         cutoff = 1000
 
-        kind, q, exp = self.division(base=base, cutoff=cutoff)
+        q, exp = self.division(base=base, cutoff=cutoff)
 
         def get_units():
             try:
@@ -233,13 +233,13 @@ class Quantity(int):
         units = get_units()
 
         if base == 1000:
-            return kind, str(q//1), units
-        elif kind == 'exact':
-            return kind, str(q.numerator), units
+            return str(q//1), units
+        elif q.denominator == 1:
+            return str(q.numerator), units
         elif q < 100:
-            return kind, Quantity.decimalize(q, 4), units
+            return Quantity.decimalize(q, 4), units
         else:
-            return kind, str(q//1), units
+            return str(q//1), units
 
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
@@ -285,7 +285,7 @@ class Quantity(int):
             return str(n)[0:length]
 
     @staticmethod
-    def string_format(kind, number, units, fill=None, align=None, string_width=None, units_width=None):
+    def string_format(number, units, fill=None, align=None, string_width=None, units_width=None):
         if string_width is not None and align is None:
             align = '='
 
@@ -476,9 +476,9 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     assert digits >= 5
 
     def inner(value):
-        kind, number, units = Quantity(value).humanize(
+        number, units = Quantity(value).humanize(
             base=base, cutoff=cutoff, digits=digits, abbrev=abbrev)
-        result = Quantity.string_format(kind, number, units)
+        result = Quantity.string_format(number, units)
         return result
     return inner
 
@@ -509,7 +509,7 @@ def short_formatter(tolerance=0.01):
     """
     assert tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)
     def inner(value):
-        kind, number, units = Quantity(value).short_humanize(tolerance=tolerance)
+        number, units = Quantity(value).short_humanize(tolerance=tolerance)
         return str(number) + units
     return inner
 
