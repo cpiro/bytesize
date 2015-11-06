@@ -235,8 +235,8 @@ class Quantity(int):
                 pass
             raise UnitNoExistError()
 
-        if q.exact:
-            return str(q.numerator), units()
+        if q.exact or base == 1000:
+            return str(q.whole_part), units()
         elif q < 100:
             return q.decimalize(4), units()
         else:

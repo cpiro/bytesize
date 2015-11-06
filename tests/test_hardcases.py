@@ -43,7 +43,7 @@ def test_hardcases():
         assert b == q * base**exp
         assert q < cutoff or (q == cutoff and base > cutoff)
 
-        assert ('.' in result) == (q.denominator != 1), \
+        assert ('.' in result) == (not q.exact), \
             "there's a decimal dot iff the value is not exact"
 
     def check_reverse(b, result, kwargs):
