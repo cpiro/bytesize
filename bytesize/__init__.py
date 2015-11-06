@@ -511,7 +511,7 @@ class _Quotient(Fraction):
     def decimalize(self, length):
         D = decimal.Decimal
         with decimal.localcontext() as ctx:
-            ctx.prec = length + 1
+            ctx.prec = length + 2
             ctx.rounding = decimal.ROUND_DOWN
             n = D(self.numerator) / D(self.denominator)
             return str(n)[0:length]
