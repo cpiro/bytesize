@@ -2,6 +2,7 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from builtins import *
 from future.utils import PY2
 
+# xxx short into __format__
 
 import os
 import sys
