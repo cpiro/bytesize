@@ -538,14 +538,18 @@ use this directly.
 '500 kilobytes'
 """
 
-try:
-    import pint
-    _ureg = pint.UnitRegistry('/dev/null')
-    _ureg.define("bit = [data] = b")
-    _ureg.define("byte = 8 bit = B")
+def _add_pint_definitions(ureg):
+    ureg.define("bit = [data] = b")
+    ureg.define("byte = 8 bit = B")
     for base, subtable in UNITS_TABLE.items():
         for exp, (abbrev, prefix) in enumerate(subtable):
             if exp != 0:
-                _ureg.define('{}- = {}**{} = {}-'.format(prefix, base, exp, abbrev))
+                ureg.define('{}- = {}**{} = {}-'.format(prefix, base, exp, abbrev))
+
+
+try:
+    import pint
+    _ureg = pint.UnitRegistry('/dev/null')
+    _add_pint_definitions(_ureg)
 except ImportError:
     pass
