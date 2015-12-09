@@ -159,8 +159,14 @@ class Quantity(int):
 
     def __format__(self, spec):
         fill, align, string_width, precision, type_ = Quantity.parse_spec(spec)
-        base, cutoff, digits_width, units_width, abbrev = self.format_options(fill, align, string_width, precision, type_)
-        number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
+        base, short, long_opts = self.format_options(fill, align, string_width, precision, type_)
+
+        if short:
+            number, units = self.short_humanize(base=base)
+        else:
+            cutoff, digits_width, units_width, abbrev = long_opts
+            number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
+
         result = Quantity.string_format(number, units, fill, align, string_width, units_width)
         return result
 
@@ -219,6 +225,7 @@ class Quantity(int):
     def format_options(self, fill, align, string_width, precision, type_):
         type_pref = None
         abbrev = True
+        short = False
         for code in type_:
             if (code == 'd' or  # decimal
                 code == 'i' or  # binary
@@ -226,29 +233,45 @@ class Quantity(int):
                 if type_pref:
                     raise ValueError("Format code must be at most one of 'a', 'd', or 'i'")
                 type_pref = code
+            elif code == 's':
+                short = True
+
             elif code == 'l':
                 abbrev = False
             else:
                 raise ValueError("Unknown format code '{}' for object of type 'bytesize.Quantity'".format(code))
 
-        if type_pref == 'i' or type_pref is None:
+        if short and not abbrev:
+            #xxx test # xxx doc
+            raise ValueError("Format code must contain at most one of 's' or 'l'")
+
+        if type_pref is None:
+            type_pref = 'a' if short else 'i'
+
+        if type_pref == 'i':
             base = 1024
         elif type_pref == 'd':
             base = 1000
         elif type_pref == 'a':
             base = self.guess_base(tolerance=0)
 
-        binary = base == 1024
-        # "precision" from spec is the width of the number itself (including the dot)
-        digits_width = precision if precision is not None and precision > 5 else 5
-        if abbrev:
-            units_width = len('YiB') if binary else len('YB')
+        if short:
+            return base, short, None
+
         else:
-            units_width = len('yobibytes') if binary else len('yottabytes')
+            binary = base == 1024
 
-        cutoff = 1024 if binary and digits_width > 5 else 1000
+            # "precision" from spec is the width of the number itself (including the dot)
+            digits_width = precision if precision is not None and precision > 5 else 5
 
-        return base, cutoff, digits_width, units_width, abbrev
+            if abbrev:
+                units_width = len('YiB') if binary else len('YB')
+            else:
+                units_width = len('yobibytes') if binary else len('yottabytes')
+
+            cutoff = 1024 if binary and digits_width > 5 else 1000
+
+            return base, short, (cutoff, digits_width, units_width, abbrev)
 
     @staticmethod
     def string_format(number, units, fill=None, align=None, string_width=None, units_width=None):
