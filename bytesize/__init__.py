@@ -473,32 +473,39 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     return inner
 
 
-def short_formatter(tolerance=0.01):
+def short_formatter(tolerance=None, base=None):
     """Return a function that formats quantities of bytes.
 
-    xxx principles
+    xxx principles, drag text out of param text
 
     >>> fmt = short_formatter()
     >>> fmt(1400605)
     '1.33Mi'
     >>> fmt(2000398934016)
     '2T'
-    >>> short_formatter(tolerance=None)(2000398934016)
+    >>> short_formatter(base=1024)(2000398934016)
     '1.81Ti'
 
-    :param tolerance: If `tolerance` is a `float`, then when `value` is less
-                      than `tolerance` times more than a whole number of
-                      decimal units, round down to that number and use decimal
-                      units. Otherwise, use binary units.  If `tolerance` is
-                      zero, only use decimal units when exact.  If `tolerance`
-                      is `None`, always use binary units.
-    :type tolerance: float or None
+    :param tolerance float: If `base` is not specified and `value` is less
+                            than `tolerance` times more than a whole number of
+                            decimal units, round down to that number and use
+                            decimal units, otherwise, use binary units. If
+                            `tolerance` is zero, only use decimal units when
+                            exact. If specified must be between 0 and 1, and
+                            defaults to 0.01.
+    :param base int: If 1024, use binary units. If 1000, use decimal units.
 
     :return: a function from values to strings
 
     """
-    assert tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)
-    base = 1024 if tolerance is None else None # xxx move this into a param
+    if not (tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)):
+        raise ValueError("tolerance must be between 0.0 and 1.0 if specified")
+    if not (tolerance is None or base is None):
+        raise ValueError("At most one of 'tolerance' and 'base' can be specified")
+
+    if tolerance is None:
+       tolerance = 0.01
+
     def inner(value):
         number, units = Quantity(value).short_humanize(base=base, tolerance=tolerance)
         return str(number) + units
