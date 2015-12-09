@@ -8,8 +8,8 @@ kwargses = ({'_short': False, 'abbrev': True, 'base': 1024, 'cutoff': 1000},
  {'_short': False, 'abbrev': False, 'base': 1024, 'cutoff': 1000},
  {'_short': False, 'abbrev': False, 'base': 1024, 'cutoff': 1024},
  {'_short': False, 'abbrev': False, 'base': 1000, 'cutoff': 1000},
- {'_short': True, 'tolerance': 0.01},
- {'_short': True, 'tolerance': None})
+ {'_short': True, 'base': None, 'tolerance': 0.01},
+ {'_short': True, 'base': 1024, 'tolerance': None})
 hardcases = [
     (                              0, ('0 B'             ,  '0 B'             ,  '0 B'             ,  '0 bytes'         ,  '0 bytes'         ,  '0 bytes'         ,  '0'               ,  '0')              ),
     (                              1, ('1 B'             ,  '1 B'             ,  '1 B'             ,  '1 byte'          ,  '1 byte'          ,  '1 byte'          ,  '1'               ,  '1')              ),

@@ -205,44 +205,51 @@ def test_format_type():
 
 def test_short_tolerance():
     data = [
-        (0, 1999999999999, '1.81Ti'),
-        (0, 2000000000000, '2T'),
-        (0, 2000000000001, '1.81Ti'),
-        (0, 2999999999999, '2.72Ti'),
-        (0.0, 1999999999999, '1.81Ti'),
-        (0.0, 2000000000000, '2T'),
-        (0.0, 2000000000001, '1.81Ti'),
-        (0.0, 2999999999999, '2.72Ti'),
-        (0.01, 1999999999999, '1.81Ti'),
-        (0.01, 2000000000000, '2T'),
-        (0.01, 2000000000001, '2T'),
-        (0.01, 2999999999999, '2.72Ti'),
-        (1, 1999999999999, '1T'),
-        (1, 2000000000000, '2T'),
-        (1, 2000000000001, '2T'),
-        (1, 2999999999999, '2T'),
-        (1.0, 1999999999999, '1T'),
-        (1.0, 2000000000000, '2T'),
-        (1.0, 2000000000001, '2T'),
-        (1.0, 2999999999999, '2T'),
-        (None, 1999999999999, '1.81Ti'),
-        (None, 2000000000000, '1.81Ti'),
-        (None, 2000000000001, '1.81Ti'),
-        (None, 2999999999999, '2.72Ti'),
+        (0,    None, 1999999999999, '1.81Ti'),
+        (0,    None, 2000000000000, '2T'),
+        (0,    None, 2000000000001, '1.81Ti'),
+        (0,    None, 2999999999999, '2.72Ti'),
+        (0.0,  None, 1999999999999, '1.81Ti'),
+        (0.0,  None, 2000000000000, '2T'),
+        (0.0,  None, 2000000000001, '1.81Ti'),
+        (0.0,  None, 2999999999999, '2.72Ti'),
+        (0.01, None, 1999999999999, '1.81Ti'),
+        (0.01, None, 2000000000000, '2T'),
+        (0.01, None, 2000000000001, '2T'),
+        (0.01, None, 2999999999999, '2.72Ti'),
+        (1,    None, 1999999999999, '1T'),
+        (1,    None, 2000000000000, '2T'),
+        (1,    None, 2000000000001, '2T'),
+        (1,    None, 2999999999999, '2T'),
+        (1.0,  None, 1999999999999, '1T'),
+        (1.0,  None, 2000000000000, '2T'),
+        (1.0,  None, 2000000000001, '2T'),
+        (1.0,  None, 2999999999999, '2T'),
+        (None, 1000, 1999999999999, '1.99T'),
+        (None, 1000, 2000000000000, '2T'),
+        (None, 1000, 2000000000001, '2.00T'),
+        (None, 1000, 2999999999999, '2.99T'),
+        (None, 1024, 1999999999999, '1.81Ti'),
+        (None, 1024, 2000000000000, '1.81Ti'),
+        (None, 1024, 2000000000001, '1.81Ti'),
+        (None, 1024, 2999999999999, '2.72Ti'),
     ]
-    def check(tolerance, value, result):
-        assert bytesize.short_formatter(tolerance=tolerance)(value) == result
+    def check(tolerance, base, value, result):
+        assert bytesize.short_formatter(tolerance=tolerance, base=base)(value) == result
 
-    for tolerance, value, result in data:
-        yield check, tolerance, value, result
+    for tolerance, base, value, result in data:
+        yield check, tolerance, base, value, result
 
 
-@raises(AssertionError)
 def test_short_tolerance_error():
-    bytesize.short_formatter(tolerance=9000)
-    bytesize.short_formatter(tolerance=1.1)
-    bytesize.short_formatter(tolerance=-0.1)
-    bytesize.short_formatter(tolerance=-9000)
+    @raises(ValueError)
+    def check(tolerance):
+        bytesize.short_formatter(tolerance=tolerance)
+
+    yield check, 9000
+    yield check, 1.1
+    yield check, -0.1
+    yield check, -9000
 
 
 if bytesize._ureg:

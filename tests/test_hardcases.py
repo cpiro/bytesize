@@ -84,8 +84,8 @@ def generate():
         for abbrev in (True, False)
         for base, cutoff in ((1024, 1000), (1024, 1024), (1000, 1000))
     ) + tuple(
-        {'_short': True, 'tolerance': tolerance}
-        for tolerance in (0.01, None)
+        {'_short': True, 'tolerance': tolerance, 'base': base}
+        for (tolerance, base) in ((0.01, None), (None, 1024)) # , (None, 1000)) xxx
     )
 
     cases = [
