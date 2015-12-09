@@ -162,7 +162,7 @@ class Quantity(int):
         base, short, long_opts = self.format_options(fill, align, string_width, precision, type_)
 
         if short:
-            number, units = self.short_humanize(base=base)
+            number, units = self.short_humanize(base=base, tolerance=0.01)
         else:
             cutoff, digits_width, units_width, abbrev = long_opts
             number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
@@ -191,11 +191,9 @@ class Quantity(int):
         else:
             return qq.decimalize(digits), units()
 
-    def short_humanize(self, tolerance=0.01):
-        if tolerance is not None:
-            base = self.guess_base(tolerance)
-        else:
-            base = 1024
+    def short_humanize(self, base=None, tolerance=0.01):
+        if base is None:
+            base = self.guess_base(tolerance=tolerance)
 
         qq, exp = _Quotient.division(int(self), base=base, cutoff=1000)
 
@@ -213,7 +211,7 @@ class Quantity(int):
         else:
             return str(qq.whole_part), units()
 
-    def guess_base(self, tolerance):
+    def guess_base(self, tolerance=0):
         # guess base 1000 vs. 1024. if 1000 is exact or slightly above exact
         # (like HDD capacities), round down and call it 'exact'. otherwise use
         # base 1024
@@ -253,12 +251,15 @@ class Quantity(int):
         elif type_pref == 'd':
             base = 1000
         elif type_pref == 'a':
-            base = self.guess_base(tolerance=0)
+            base = None
 
         if short:
             return base, short, None
 
         else:
+            if base is None:
+                base = self.guess_base()
+
             binary = base == 1024
 
             # "precision" from spec is the width of the number itself (including the dot)
@@ -497,8 +498,9 @@ def short_formatter(tolerance=0.01):
 
     """
     assert tolerance is None or (0.0 <= tolerance and tolerance <= 1.0)
+    base = 1024 if tolerance is None else None # xxx move this into a param
     def inner(value):
-        number, units = Quantity(value).short_humanize(tolerance=tolerance)
+        number, units = Quantity(value).short_humanize(base=base, tolerance=tolerance)
         return str(number) + units
     return inner
 
