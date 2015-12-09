@@ -271,8 +271,13 @@ def test_format_unknown_code():
 
 
 @raises(ValueError)
-def test_format_mutex_code():
+def test_format_type_mutex_code():
     '{:di}'.format(Q(10000))
+
+
+@raises(ValueError)
+def test_format_short_mutex_code():
+    '{:sl}'.format(Q(10000))
 
 
 @raises(ValueError)
