@@ -2,8 +2,6 @@ from __future__ import (absolute_import, division, print_function, unicode_liter
 from builtins import *
 from future.utils import PY2
 
-# xxx short into __format__
-
 import os
 import sys
 from fractions import Fraction
@@ -243,7 +241,6 @@ class Quantity(int):
                 raise ValueError("Unknown format code '{}' for object of type 'bytesize.Quantity'".format(code))
 
         if short and not abbrev:
-            #xxx test # xxx doc
             raise ValueError("Format code must contain at most one of 's' or 'l'")
 
         if type_pref is None:

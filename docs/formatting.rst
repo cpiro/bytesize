@@ -15,7 +15,7 @@ Format specifiers for :class:`Quantity` are similar to those for
    align: "<" | ">" | "=" | "^"
    width: `integer`
    precision: `integer`
-   type: "i" | "d" | "a" | "l"
+   type: "i" | "d" | "a" | "s" | "l"
 
 *width* is a whole number defining the minimum field width. If not specified,
 then the field width will be determined by the content. To avoid overflow,
@@ -26,7 +26,8 @@ units.
 *precision* is a whole number specifying the maximum length of the numeric
 portion of the representation, including any decimal point. The default
 is 5. If *precision* is specified and less than 5, the default is used. For a
-shorter alternative, see :func:`short_formatter`.
+shorter alternative, consider using either ``'s'`` for short mode or
+:func:`short_formatter`.
 
 *type* determines how the unit symbols should be presented:
 
@@ -40,6 +41,8 @@ shorter alternative, see :func:`short_formatter`.
    | ``'a'`` | Automatic: use binary units unless the quantity is       |
    |         | a whole number of some decimal unit, then use decimal    |
    |         | units.                                                   |
+   +---------+----------------------------------------------------------+
+   | ``'s'`` | Use short format. xxx describe, incompat with precision  |
    +---------+----------------------------------------------------------+
    | ``'l'`` | Use long unit names. If absent, use abbreviations.       |
    +---------+----------------------------------------------------------+
