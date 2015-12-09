@@ -194,6 +194,9 @@ class Quantity(int):
     def short_humanize(self, base=None, tolerance=0.01):
         if base is None:
             base = self.guess_base(tolerance=tolerance)
+            base_was_guessed = True
+        else:
+            base_was_guessed = False
 
         qq, exp = _Quotient.division(int(self), base=base, cutoff=1000)
 
@@ -204,7 +207,7 @@ class Quantity(int):
                 pass
             raise UnitNoExistError()
 
-        if qq.exact or base == 1000:
+        if qq.exact or (base == 1000 and base_was_guessed):
             return str(qq.whole_part), units()
         elif qq < 100:
             return qq.decimalize(4), units()
