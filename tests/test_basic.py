@@ -308,17 +308,29 @@ def test_short_tolerance():
         yield check, tolerance, base, value, result
 
 
-def test_short_tolerance_error():
+def test_formatter_value_errors():
     @raises(ValueError)
-    def check(tolerance, base):
-        bytesize.short_formatter(tolerance=tolerance, base=base)
+    def check_long(kwargs):
+        bytesize.formatter(**kwargs)
 
-    yield check, 9000, None
-    yield check, 1.1, None
-    yield check, -0.1, None
-    yield check, -9000, None
-    yield check, 0.1, 1024
-    yield check, None, 1984
+    @raises(ValueError)
+    def check_short(kwargs):
+        bytesize.short_formatter(**kwargs)
+
+    yield check_long, {'base': 1984}
+    yield check_long, {'cutoff': 1984}
+    yield check_long, {'base': 1000, 'cutoff': 1024}
+    yield check_long, {'digits': 1}
+    yield check_long, {'digits': -1}
+    yield check_long, {'digits': 6.8}
+    yield check_long, {'abbrev': 'iation'}
+
+    yield check_short, {'tolerance': 9000}
+    yield check_short, {'tolerance': 1.1}
+    yield check_short, {'tolerance': -0.1}
+    yield check_short, {'tolerance': -9000}
+    yield check_short, {'tolerance': 0.1, 'base': 1024}
+    yield check_short, {'base': 1984}
 
 
 if bytesize._ureg:

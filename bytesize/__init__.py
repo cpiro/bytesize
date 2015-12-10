@@ -466,8 +466,10 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
         raise ValueError("cutoff must be 1000 or 1024 if specified")
     if not base >= cutoff:
         raise ValueError("base must be greater than or equal to cutoff")
-    if not digits >= 5:
-        raise ValueError("digits must be at least 5")
+    if not (digits >= 5 and isinstance(digits, int)):
+        raise ValueError("digits must be integral at least 5")
+    if not abbrev in (True, False):
+        raise ValueError("abbrev must be boolean")
 
     def inner(value):
         number, units = Quantity(value).humanize(
