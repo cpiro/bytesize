@@ -51,7 +51,8 @@ def test_hardcases():
         within truncation error
         """
         if kwargs['_short']:
-            result += 'B'
+            if not result.endswith('B'):
+                result += 'B'
             lower_bound = 1.0 - (kwargs['tolerance'] or 0.01)
         else:
             lower_bound = 0.999
