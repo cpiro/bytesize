@@ -460,10 +460,14 @@ def formatter(base=1024, cutoff=1000, digits=5, abbrev=True):
     :return: a function from values to strings
 
     """
-    assert base in (1000, 1024)
-    assert cutoff in (1000, 1024)
-    assert base >= cutoff
-    assert digits >= 5
+    if not base in (1000, 1024):
+        raise ValueError("base must be 1000 or 1024 if specified")
+    if not cutoff in (1000, 1024):
+        raise ValueError("cutoff must be 1000 or 1024 if specified")
+    if not base >= cutoff:
+        raise ValueError("base must be greater than or equal to cutoff")
+    if not digits >= 5:
+        raise ValueError("digits must be at least 5")
 
     def inner(value):
         number, units = Quantity(value).humanize(
@@ -502,6 +506,8 @@ def short_formatter(tolerance=None, base=None):
         raise ValueError("tolerance must be between 0.0 and 1.0 if specified")
     if not (tolerance is None or base is None):
         raise ValueError("At most one of 'tolerance' and 'base' can be specified")
+    if not base in (None, 1000, 1024):
+        raise ValueError("base must be 1000 or 1024 if specified")
 
     if tolerance is None:
        tolerance = 0.01
