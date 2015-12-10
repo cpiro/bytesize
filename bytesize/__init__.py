@@ -160,13 +160,13 @@ class Quantity(int):
         base, short, long_opts = self.format_options(fill, align, string_width, precision, type_)
 
         if short:
+            units_width = 1 if base == 1000 else 2
             number, units = self.short_humanize(base=base, tolerance=0.01)
         else:
             cutoff, digits_width, units_width, abbrev = long_opts
             number, units = self.humanize(base=base, cutoff=cutoff, digits=digits_width, abbrev=abbrev)
 
-        result = Quantity.string_format(number, units, fill, align, string_width, units_width)
-        return result
+        return Quantity.string_format(number, units, fill, align, string_width, units_width, short)
 
     def humanize(self, base=1024, cutoff=1000, digits=5, abbrev=True):
         assert base >= cutoff
@@ -200,7 +200,7 @@ class Quantity(int):
 
         def units():
             try:
-                return UNITS_TABLE[base][exp][0]
+                return UNITS_TABLE[base][exp][0] or 'B'
             except IndexError:
                 pass
             raise UnitNoExistError()
@@ -275,7 +275,7 @@ class Quantity(int):
             return base, short, (cutoff, digits_width, units_width, abbrev)
 
     @staticmethod
-    def string_format(number, units, fill=None, align=None, string_width=None, units_width=None):
+    def string_format(number, units, fill=None, align=None, string_width=None, units_width=None, short=None):
         if string_width is not None and align is None:
             align = '='
 
@@ -296,7 +296,7 @@ class Quantity(int):
 
         width_spec = str(string_width) if string_width is not None else ''
         return "{:{fa_spec}{width_spec}}".format(
-            "{} {}".format(number, units),
+            number + ('' if short else ' ') + units,
             fa_spec=fa_spec(),
             width_spec=width_spec)
 
