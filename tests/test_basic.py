@@ -2,7 +2,7 @@
 
 import operator
 
-from nose.tools import raises, assert_raises
+from nose.tools import raises
 from future.utils import PY2
 
 import bytesize
@@ -310,13 +310,15 @@ def test_short_tolerance():
 
 def test_short_tolerance_error():
     @raises(ValueError)
-    def check(tolerance):
-        bytesize.short_formatter(tolerance=tolerance)
+    def check(tolerance, base):
+        bytesize.short_formatter(tolerance=tolerance, base=base)
 
-    yield check, 9000
-    yield check, 1.1
-    yield check, -0.1
-    yield check, -9000
+    yield check, 9000, None
+    yield check, 1.1, None
+    yield check, -0.1, None
+    yield check, -9000, None
+    yield check, 0.1, 1024
+    yield check, None, 1984
 
 
 if bytesize._ureg:
