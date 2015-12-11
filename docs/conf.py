@@ -129,6 +129,9 @@ html_theme_options = {
     'github_repo': 'bytesize',
     'github_button': 'true',
     'travis_button': 'true',
+    'code_font_family': "'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', 'monospace'",
+    'head_font_family': "'PT Serif', 'Lucida Grande', 'Helvetica', 'Arial', 'sans-serif'",
+    'font_family': "'PT Serif', 'Lucida Grande', 'Helvetica', 'Arial', 'sans-serif'",
 }
 
 # Add any paths that contain custom themes here, relative to this directory.

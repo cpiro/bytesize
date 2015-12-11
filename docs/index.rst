@@ -3,9 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. xxx nice docs http://nose.readthedocs.org/en/latest/index.html
-   http://pytest.org/latest/
-
 .. module:: bytesize
 
 Overview
@@ -14,7 +11,7 @@ Generate human-readable strings for quantities of bytes:
 
 >>> import bytesize
 >>> size = bytesize.Quantity('2 terabytes')
->>> "Device: {} ({})".format('sda', size)
+>>> "Device: sda ({})".format(size)
 'Device: sda (1.818 TiB)'
 
 >>> fmt = bytesize.formatter()
