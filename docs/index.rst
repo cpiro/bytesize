@@ -29,11 +29,11 @@ Features
   *bytesize* to guess. The units are chosen automatically to keep the
   magnitude between 0 and 1,000 (or optionally 1,024 for binary units). Units
   are your choice of abbreviated symbols or full names.
-- **Pedantic**: We omit a decimal point if and only if the quantity is
-  exact. Approximations will never be greater than the actual value -- we use
-  only integer (xxx decimal?) math to avoid floating-point errors.
+- **Pedantic**: By default we omit a decimal point if and only if the quantity
+  is exact. Approximations will never be greater than the actual value -- we
+  use :mod:`fractions` to avoid floating-point errors.
 - **Advanced formatting**: Format quantities naturally with
-  :meth:`str.format` -- we provide a :ref:`mini-language <formatting>` for
+  :meth:`str.format`. We provide a :ref:`mini-language <formatting>` for
   customizing presentation.
 - **Natural interoperability**: Arithmetic operators and comparison operators
   are defined as you would expect. :class:`Quantity` subclasses :class:`int`
@@ -46,14 +46,18 @@ Features
 Examples
 ========
 
-  .. xxx short
-
 >>> from bytesize import Quantity as Q
->>> "{0:i} | {0:d} | {0:a}".format(Q('2 TiB'))
-'2 TiB | 2.199 TB | 2 TiB'
-
->>> "{0:i} | {0:d} | {0:a}".format(Q('2 TB'))
+>>> "{0:} | {0:a} | {0:d}".format(Q('2 TiB'))
+'2 TiB | 2 TiB | 2.199 TB'
+>>> "{0:} | {0:a} | {0:d}".format(Q('2 TB'))
 '1.818 TiB | 2 TB | 2 TB'
+
+"Short" mode, which will guess binary vs. decimal units unless specified:
+
+>>> "{0:s} | {0:si} | {0:sd}".format(Q('2 TB'))
+'2T | 1.81Ti | 2T'
+
+Formatting with long unit names and field widths:
 
 >>> for zeros in range(0, 7):
 ...     print("│ {0:16ld}╎{0:9d} │".format(Q(10**zeros)))
@@ -65,14 +69,18 @@ Examples
 │   100 kilobytes ╎   100 kB │
 │     1 megabyte  ╎     1 MB │
 
+The (non-short) formatter outputs a decimal point if and only if the quantity
+is exact. By default, switch to the next highest unit to avoid quantities
+between 1000 and 1024:
+
 >>> fmt(1000 * 1024**7 - 1)
 '999.9 ZiB'
-
 >>> fmt(1000 * 1024**7)
 '1000 ZiB'
-
 >>> fmt(1000 * 1024**7 + 1)
 '0.976 YiB'
+
+. . . or specify `cutoff=1024` if you don't mind quantities up to 1024:
 
 >>> bytesize.formatter(cutoff=1024)(1000 * 1024**7 + 1)
 '1000. ZiB'

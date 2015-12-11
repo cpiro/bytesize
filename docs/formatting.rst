@@ -26,15 +26,17 @@ units.
 *precision* is a whole number specifying the maximum length of the numeric
 portion of the representation, including any decimal point. The default
 is 5. If *precision* is specified and less than 5, the default is used. For a
-shorter alternative, consider using either ``'s'`` for short mode or
-:func:`short_formatter`.
+compact and less pedantic alternative, consider either ``'s'`` for short mode
+or :func:`short_formatter`. Note that *precision* and "short mode" are
+incompatible.
 
 *type* determines how the unit symbols should be presented:
 
    +---------+----------------------------------------------------------+
    | Type    | Meaning                                                  |
    +=========+==========================================================+
-   | ``'i'`` | Use binary IEC unit prefixes. This is the default.       |
+   | ``'i'`` | Use binary IEC unit prefixes. This is the default except |
+   |         | when ``'s'`` is specified.                               |
    +---------+----------------------------------------------------------+
    | ``'d'`` | Use decimal SI unit prefixes.                            |
    +---------+----------------------------------------------------------+
@@ -42,7 +44,8 @@ shorter alternative, consider using either ``'s'`` for short mode or
    |         | a whole number of some decimal unit, then use decimal    |
    |         | units.                                                   |
    +---------+----------------------------------------------------------+
-   | ``'s'`` | Use short format. xxx describe, incompat with precision  |
+   | ``'s'`` | Use "short mode" -- see :func:`short_formatter` for      |
+   |         | details. Incompatible with *precision* and ``'l'``.      |
    +---------+----------------------------------------------------------+
    | ``'l'`` | Use long unit names. If absent, use abbreviations.       |
    +---------+----------------------------------------------------------+
@@ -78,4 +81,3 @@ alignment options are as follows:
 
 Note that, unlike built-in numerics, there is no ``','`` for specifying a
 thousands separator, no signs, and no ``'#'`` for specifying "alternate form".
-
